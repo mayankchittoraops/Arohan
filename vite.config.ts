@@ -4,8 +4,13 @@ import tailwindcss from '@tailwindcss/vite'
 import { VitePWA } from 'vite-plugin-pwa'
 import path from 'node:path'
 
-// Deployed to GitHub Pages at https://<user>.github.io/arohan/
-const base = process.env.VITE_BASE ?? '/arohan/'
+// Deployed to GitHub Pages at https://<user>.github.io/Arohan/.
+//
+// This must match the repository name exactly, including its capital A: Pages
+// mounts a project site at the repo's path and URL path segments are
+// case-sensitive, so a lowercase base would leave every asset link pointing at
+// a path that does not exist.
+const base = process.env.VITE_BASE ?? '/Arohan/'
 
 export default defineConfig({
   base,
