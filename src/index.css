@@ -1,0 +1,173 @@
+@import 'tailwindcss';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ------------------------------------------------------------------ theme */
+
+@theme inline {
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-raised: var(--raised);
+  --color-sunken: var(--sunken);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-faint: var(--faint);
+
+  --color-accent: var(--accent);
+  --color-accent-ink: var(--accent-ink);
+  --color-accent-soft: var(--accent-soft);
+
+  --color-teal: var(--teal);
+  --color-indigo: var(--indigo);
+  --color-rose: var(--rose);
+  --color-amber: var(--amber);
+  --color-sky: var(--sky);
+  --color-violet: var(--violet);
+  --color-mint: var(--mint);
+
+  --font-sans:
+    -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, Helvetica, Arial,
+    sans-serif;
+
+  --radius-xl2: 1.25rem;
+  --radius-xl3: 1.75rem;
+
+  --ease-out-soft: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+:root {
+  --canvas: #f3f3f6;
+  --surface: #ffffff;
+  --raised: #ffffff;
+  --sunken: #eaeaef;
+  --line: #e3e3ea;
+  --line-strong: #d2d2dc;
+
+  --ink: #0e0e13;
+  --muted: #63636f;
+  --faint: #93939f;
+
+  --accent: #f2622e;
+  --accent-ink: #ffffff;
+  --accent-soft: #fdece5;
+
+  --teal: #0d9488;
+  --indigo: #4f46e5;
+  --rose: #e11d48;
+  --amber: #d97706;
+  --sky: #0284c7;
+  --violet: #7c3aed;
+  --mint: #059669;
+
+  --shadow-card: 0 1px 2px rgb(15 15 20 / 0.04), 0 8px 24px -12px rgb(15 15 20 / 0.14);
+}
+
+.dark {
+  --canvas: #0a0a0e;
+  --surface: #141419;
+  --raised: #1c1c23;
+  --sunken: #101015;
+  --line: #26262f;
+  --line-strong: #363641;
+
+  --ink: #f6f6f8;
+  --muted: #a0a0ac;
+  --faint: #71717e;
+
+  --accent: #ff8a52;
+  --accent-ink: #1a0d05;
+  --accent-soft: #2a1810;
+
+  --teal: #2dd4bf;
+  --indigo: #a5b4fc;
+  --rose: #fb7185;
+  --amber: #fbbf24;
+  --sky: #38bdf8;
+  --violet: #c4b5fd;
+  --mint: #34d399;
+
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.4), 0 8px 24px -14px rgb(0 0 0 / 0.6);
+}
+
+/* ------------------------------------------------------------------- base */
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
+    background-color: var(--canvas);
+  }
+
+  body {
+    margin: 0;
+    background-color: var(--canvas);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    font-synthesis-weight: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    overscroll-behavior-y: none;
+  }
+
+  /* Keyboard focus stays visible; pointer focus does not draw a ring. */
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  button,
+  input,
+  select,
+  textarea {
+    font: inherit;
+    color: inherit;
+  }
+
+  /* iPadOS zooms any field whose text is under 16px when it gains focus. */
+  input,
+  select,
+  textarea {
+    font-size: max(16px, 1rem);
+  }
+
+  ::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+  }
+}
+
+@layer utilities {
+  .shadow-card {
+    box-shadow: var(--shadow-card);
+  }
+
+  .pt-safe {
+    padding-top: env(safe-area-inset-top);
+  }
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+
+  .no-select {
+    -webkit-user-select: none;
+    user-select: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
