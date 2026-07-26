@@ -49,7 +49,7 @@ assets to fetch.
 
 ```bash
 npm install
-npm run dev        # http://localhost:5173/arohan/
+npm run dev        # http://localhost:5173/Arohan/
 npm run build      # type-check, lint-clean build into dist/
 npm run preview
 npx tsc -b         # type check on its own
@@ -62,9 +62,13 @@ Pushing to `main` runs `.github/workflows/deploy.yml`, which type-checks, lints,
 and publishes `dist/` to GitHub Pages. Enable Pages for the repository with
 **Settings → Pages → Source: GitHub Actions** once, and it deploys on every push.
 
-The app is served from `/arohan/`; change `base` in `vite.config.ts` if the repository is
-renamed. The workflow copies `index.html` to `404.html` because GitHub Pages has no SPA
-rewrite — that is what makes a deep link work on a cold load.
+The app is served from `/Arohan/`. That base must match the repository name exactly,
+capital A included — Pages mounts a project site at the repo's path and URL path segments
+are case-sensitive, so a lowercase base would leave every asset link pointing nowhere.
+Change `base` in `vite.config.ts` if the repository is ever renamed.
+
+The workflow copies `index.html` to `404.html` because GitHub Pages has no SPA rewrite —
+that is what makes a deep link work on a cold load.
 
 ## Installing on the iPad
 
