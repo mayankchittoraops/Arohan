@@ -16,6 +16,12 @@ export type MuscleGroup =
 /** How a set is counted, which decides what the logger asks for. */
 export type ExerciseKind = 'reps' | 'repsPerSide' | 'time' | 'timePerSide'
 
+/**
+ * How demanding a movement is, independent of the load on it. Used to sort the
+ * library and to explain why a substitution happened.
+ */
+export type Difficulty = 'foundation' | 'developing' | 'advanced'
+
 /** Illustration key — see `ExerciseGlyph`. */
 export type GlyphKey =
   | 'squat'
@@ -46,7 +52,11 @@ export interface Exercise {
   name: string
   kind: ExerciseKind
   equipment: Equipment[]
+  /** What the movement is chiefly training. */
   primary: MuscleGroup[]
+  /** What assists, and what will also feel it the next day. */
+  secondary: MuscleGroup[]
+  difficulty: Difficulty
   glyph: GlyphKey
   /** One line shown under the name — what this movement is for. */
   summary: string
@@ -56,10 +66,10 @@ export interface Exercise {
   cues: string[]
   /** Safe to perform, and generally helpful, with an irritable lower back. */
   backFriendly: boolean
-  /** An easier variation to fall back on. */
-  regression?: string
+  /** An easier variation to fall back on. Every movement has one. */
+  regression: string
   /** A harder variation once the top of the rep range feels easy. */
-  progression?: string
+  progression: string
   /** Loadable movements get a weight field in the logger. */
   loadable?: boolean
 }

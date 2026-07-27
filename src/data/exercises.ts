@@ -18,6 +18,8 @@ const list: Exercise[] = [
     kind: 'reps',
     equipment: ['mat'],
     primary: ['mobility', 'core'],
+    secondary: ['back'],
+    difficulty: 'foundation',
     glyph: 'catcow',
     summary: 'Wakes the spine up segment by segment.',
     instructions: [
@@ -28,6 +30,8 @@ const list: Exercise[] = [
     ],
     cues: ['Lead with the tailbone, not the neck', 'No forcing at the end range'],
     backFriendly: true,
+    regression: 'Rock gently back and forth on all fours instead.',
+    progression: 'Add a pause and three breaths at each end of the range.',
   },
   {
     id: 'bird-dog',
@@ -35,6 +39,8 @@ const list: Exercise[] = [
     kind: 'repsPerSide',
     equipment: ['mat'],
     primary: ['core', 'back'],
+    secondary: ['glutes', 'shoulders'],
+    difficulty: 'foundation',
     glyph: 'core',
     summary: 'Teaches the trunk to stay still while the limbs move.',
     instructions: [
@@ -54,6 +60,8 @@ const list: Exercise[] = [
     kind: 'repsPerSide',
     equipment: ['mat'],
     primary: ['core'],
+    secondary: ['legs'],
+    difficulty: 'foundation',
     glyph: 'core',
     summary: 'Core bracing with the lower back safely supported.',
     instructions: [
@@ -73,6 +81,8 @@ const list: Exercise[] = [
     kind: 'reps',
     equipment: ['mat'],
     primary: ['glutes', 'core'],
+    secondary: ['legs', 'back'],
+    difficulty: 'foundation',
     glyph: 'bridge',
     summary: 'Gets the glutes doing the work the lower back has been covering.',
     instructions: [
@@ -83,6 +93,7 @@ const list: Exercise[] = [
     ],
     cues: ['Push the floor away with the heels', 'Do not arch to gain height'],
     backFriendly: true,
+    regression: 'Shorten the range and lift only halfway.',
     progression: 'Single leg, or rest a dumbbell across the hips.',
   },
   {
@@ -91,6 +102,8 @@ const list: Exercise[] = [
     kind: 'reps',
     equipment: ['band'],
     primary: ['back', 'shoulders'],
+    secondary: ['arms'],
+    difficulty: 'foundation',
     glyph: 'row',
     summary: 'Opens the chest and switches on the mid-back before pressing.',
     instructions: [
@@ -100,6 +113,8 @@ const list: Exercise[] = [
     ],
     cues: ['Shoulders down, away from the ears', 'Elbows stay soft, not locked'],
     backFriendly: true,
+    regression: 'Choke up on the band to shorten the lever.',
+    progression: 'Use a heavier band, or pause two seconds at full stretch.',
   },
   {
     id: 'shoulder-circles',
@@ -107,6 +122,8 @@ const list: Exercise[] = [
     kind: 'reps',
     equipment: ['bodyweight'],
     primary: ['mobility', 'shoulders'],
+    secondary: ['back'],
+    difficulty: 'foundation',
     glyph: 'shoulder',
     summary: 'A quick warm-up for the shoulder joint.',
     instructions: [
@@ -116,6 +133,8 @@ const list: Exercise[] = [
     ],
     cues: ['Make the circles as big as comfort allows'],
     backFriendly: true,
+    regression: 'Make the circles smaller.',
+    progression: 'Hold a light weight, or add a band pass-through.',
   },
   {
     id: 'ankle-rocks',
@@ -123,6 +142,8 @@ const list: Exercise[] = [
     kind: 'repsPerSide',
     equipment: ['bodyweight', 'wall'],
     primary: ['mobility', 'legs'],
+    secondary: ['core'],
+    difficulty: 'foundation',
     glyph: 'calf',
     summary: 'Ankle range makes squats and lunges feel far easier.',
     instructions: [
@@ -132,6 +153,8 @@ const list: Exercise[] = [
     ],
     cues: ['Heel glued to the floor', 'Knee tracks over the second toe'],
     backFriendly: true,
+    regression: 'Move the foot further from the wall.',
+    progression: 'Move the foot closer to the wall each week.',
   },
   {
     id: 'standing-march',
@@ -139,6 +162,8 @@ const list: Exercise[] = [
     kind: 'repsPerSide',
     equipment: ['bodyweight'],
     primary: ['mobility', 'core'],
+    secondary: ['legs', 'glutes'],
+    difficulty: 'foundation',
     glyph: 'walk',
     summary: 'Raises the heart rate and rehearses single-leg balance.',
     instructions: [
@@ -148,6 +173,8 @@ const list: Exercise[] = [
     ],
     cues: ['Tall spine', 'Do not lean back to lift the knee'],
     backFriendly: true,
+    regression: 'Hold a wall for balance.',
+    progression: 'Pause two seconds with the knee up, eyes closed.',
   },
 
   /* --------------------------------------------------------- lower body */
@@ -157,6 +184,8 @@ const list: Exercise[] = [
     kind: 'reps',
     equipment: ['bodyweight'],
     primary: ['legs', 'glutes'],
+    secondary: ['core'],
+    difficulty: 'foundation',
     glyph: 'squat',
     summary: 'The foundation of every lower-body session.',
     instructions: [
@@ -171,27 +200,13 @@ const list: Exercise[] = [
     progression: 'Add a three-second lowering phase, then hold a dumbbell at the chest.',
   },
   {
-    id: 'chair-squat',
-    name: 'Chair Squat',
-    kind: 'reps',
-    equipment: ['chair'],
-    primary: ['legs', 'glutes'],
-    glyph: 'squat',
-    summary: 'A squat with a target, so depth stays consistent.',
-    instructions: [
-      'Stand in front of a chair, feet shoulder width apart.',
-      'Sit back until the seat just touches, without relaxing onto it.',
-      'Stand straight back up, squeezing the glutes at the top.',
-    ],
-    cues: ['Touch, do not sit', 'Chest stays lifted'],
-    backFriendly: true,
-  },
-  {
     id: 'reverse-lunge',
     name: 'Reverse Lunge',
     kind: 'repsPerSide',
     equipment: ['bodyweight'],
     primary: ['legs', 'glutes'],
+    secondary: ['core'],
+    difficulty: 'developing',
     glyph: 'lunge',
     summary: 'Kinder on the knees than a forward lunge, and better for balance.',
     instructions: [
@@ -212,6 +227,8 @@ const list: Exercise[] = [
     kind: 'repsPerSide',
     equipment: ['bodyweight'],
     primary: ['legs', 'glutes'],
+    secondary: ['core'],
+    difficulty: 'developing',
     glyph: 'lunge',
     summary: 'Builds single-leg strength without needing balance to be perfect.',
     instructions: [
@@ -221,6 +238,8 @@ const list: Exercise[] = [
     ],
     cues: ['Straight up and down, not forward', 'Hips square'],
     backFriendly: true,
+    regression: 'Shorten the range and hold a wall.',
+    progression: 'Elevate the back foot for a Bulgarian split squat.',
     loadable: true,
   },
   {
@@ -229,6 +248,8 @@ const list: Exercise[] = [
     kind: 'repsPerSide',
     equipment: ['chair'],
     primary: ['legs', 'glutes'],
+    secondary: ['core'],
+    difficulty: 'advanced',
     glyph: 'lunge',
     summary: 'One of the hardest things you can do to a leg without a barbell.',
     instructions: [
@@ -238,6 +259,8 @@ const list: Exercise[] = [
     ],
     cues: ['Lean the torso very slightly forward', 'Control the descent'],
     backFriendly: true,
+    regression: 'Drop the back foot to the floor for a plain split squat.',
+    progression: 'Hold a dumbbell in each hand.',
     loadable: true,
   },
   {
@@ -246,6 +269,8 @@ const list: Exercise[] = [
     kind: 'reps',
     equipment: ['band'],
     primary: ['glutes', 'back', 'legs'],
+    secondary: ['core'],
+    difficulty: 'developing',
     glyph: 'hinge',
     summary: 'The hip hinge — the single most useful pattern for a healthy back.',
     instructions: [
@@ -266,6 +291,8 @@ const list: Exercise[] = [
     kind: 'repsPerSide',
     equipment: ['bodyweight'],
     primary: ['glutes', 'legs', 'core'],
+    secondary: ['back'],
+    difficulty: 'advanced',
     glyph: 'hinge',
     summary: 'Hinge strength plus the balance to hold it together.',
     instructions: [
@@ -275,6 +302,8 @@ const list: Exercise[] = [
     ],
     cues: ['Hips stay level — do not let the free hip open up', 'Move slowly'],
     backFriendly: true,
+    regression: 'Rest the toe of the free leg on the floor behind you.',
+    progression: 'Hold a dumbbell in the opposite hand.',
     loadable: true,
   },
   {
@@ -283,6 +312,8 @@ const list: Exercise[] = [
     kind: 'time',
     equipment: ['wall'],
     primary: ['legs'],
+    secondary: ['glutes', 'core'],
+    difficulty: 'foundation',
     glyph: 'squat',
     summary: 'Quiet, joint-friendly leg endurance.',
     instructions: [
@@ -292,6 +323,8 @@ const list: Exercise[] = [
     ],
     cues: ['Whole back in contact with the wall', 'Weight in the heels'],
     backFriendly: true,
+    regression: 'Sit higher, with the knees less bent.',
+    progression: 'Lift one heel, or hold a weight on the thighs.',
   },
   {
     id: 'calf-raise',
@@ -299,6 +332,8 @@ const list: Exercise[] = [
     kind: 'reps',
     equipment: ['bodyweight'],
     primary: ['legs'],
+    secondary: ['core'],
+    difficulty: 'foundation',
     glyph: 'calf',
     summary: 'Strong calves protect the knees and ankles.',
     instructions: [
@@ -308,24 +343,8 @@ const list: Exercise[] = [
     ],
     cues: ['Full range, top to bottom', 'Slow on the way down'],
     backFriendly: true,
+    regression: 'Hold a wall and use both legs.',
     progression: 'One leg at a time, or stand on a step for extra range.',
-    loadable: true,
-  },
-  {
-    id: 'step-up',
-    name: 'Step-Up',
-    kind: 'repsPerSide',
-    equipment: ['chair'],
-    primary: ['legs', 'glutes'],
-    glyph: 'lunge',
-    summary: 'Direct carry-over to stairs and hills.',
-    instructions: [
-      'Place one whole foot on a stable chair or step.',
-      'Drive through that heel to stand up on top, without pushing off the back foot.',
-      'Lower under control. Complete all reps, then swap.',
-    ],
-    cues: ['No bouncing off the floor', 'Knee tracks over the foot'],
-    backFriendly: true,
     loadable: true,
   },
   {
@@ -334,6 +353,8 @@ const list: Exercise[] = [
     kind: 'repsPerSide',
     equipment: ['band'],
     primary: ['glutes'],
+    secondary: ['legs'],
+    difficulty: 'foundation',
     glyph: 'walk',
     summary: 'Targets the side glutes, which stabilise the pelvis.',
     instructions: [
@@ -343,6 +364,8 @@ const list: Exercise[] = [
     ],
     cues: ['Feet stay pointing forward', 'Do not let the knees collapse inwards'],
     backFriendly: true,
+    regression: 'Move the band above the knees rather than the ankles.',
+    progression: 'Use a heavier band, or drop into a deeper squat.',
   },
   {
     id: 'clamshell',
@@ -350,6 +373,8 @@ const list: Exercise[] = [
     kind: 'repsPerSide',
     equipment: ['mat'],
     primary: ['glutes'],
+    secondary: ['core'],
+    difficulty: 'foundation',
     glyph: 'hip',
     summary: 'Small movement, big effect on hip stability.',
     instructions: [
@@ -359,6 +384,8 @@ const list: Exercise[] = [
     ],
     cues: ['Pelvis stays perfectly still', 'You should feel it in the side of the hip'],
     backFriendly: true,
+    regression: 'Reduce the range to whatever keeps the pelvis still.',
+    progression: 'Add a band above the knees.',
   },
   {
     id: 'goblet-squat',
@@ -366,6 +393,8 @@ const list: Exercise[] = [
     kind: 'reps',
     equipment: ['dumbbell'],
     primary: ['legs', 'glutes', 'core'],
+    secondary: ['back'],
+    difficulty: 'developing',
     glyph: 'squat',
     summary: 'The load at the chest keeps the torso upright for you.',
     instructions: [
@@ -375,6 +404,8 @@ const list: Exercise[] = [
     ],
     cues: ['Elbows point down', 'Chest stays tall'],
     backFriendly: true,
+    regression: 'Drop the weight and squat with bodyweight.',
+    progression: 'Pause three seconds at the bottom of every rep.',
     loadable: true,
   },
   {
@@ -383,6 +414,8 @@ const list: Exercise[] = [
     kind: 'reps',
     equipment: ['dumbbell'],
     primary: ['glutes', 'back', 'legs'],
+    secondary: ['core'],
+    difficulty: 'developing',
     glyph: 'hinge',
     summary: 'The main loaded posterior-chain builder from phase two on.',
     instructions: [
@@ -393,6 +426,8 @@ const list: Exercise[] = [
     ],
     cues: ['Weights stay close to the body', 'Never round the lower back to go deeper'],
     backFriendly: true,
+    regression: 'Use a band instead of dumbbells.',
+    progression: 'Move to a single leg, or add a pause at the stretch.',
     loadable: true,
   },
   {
@@ -401,6 +436,8 @@ const list: Exercise[] = [
     kind: 'repsPerSide',
     equipment: ['dumbbell'],
     primary: ['legs', 'glutes'],
+    secondary: ['core'],
+    difficulty: 'developing',
     glyph: 'lunge',
     summary: 'Loaded single-leg work without spinal compression.',
     instructions: [
@@ -410,6 +447,8 @@ const list: Exercise[] = [
     ],
     cues: ['Stay tall', 'Do not let the back knee crash down'],
     backFriendly: true,
+    regression: 'Drop the dumbbells and use bodyweight.',
+    progression: 'Elevate the back foot, or hold the weights at the chest.',
     loadable: true,
   },
   {
@@ -418,6 +457,8 @@ const list: Exercise[] = [
     kind: 'time',
     equipment: ['dumbbell'],
     primary: ['core', 'back', 'arms'],
+    secondary: ['legs', 'shoulders'],
+    difficulty: 'foundation',
     glyph: 'balance',
     summary: 'Grip, posture and trunk stiffness, all in one walk.',
     instructions: [
@@ -427,6 +468,8 @@ const list: Exercise[] = [
     ],
     cues: ['Ribs stacked over hips', 'Do not lean away from the weight'],
     backFriendly: true,
+    regression: 'Carry lighter weights for a shorter walk.',
+    progression: 'Carry one dumbbell only, which doubles the anti-lean demand.',
     loadable: true,
   },
 
@@ -437,6 +480,8 @@ const list: Exercise[] = [
     kind: 'reps',
     equipment: ['bodyweight', 'chair', 'wall'],
     primary: ['chest', 'shoulders', 'arms'],
+    secondary: ['core'],
+    difficulty: 'foundation',
     glyph: 'push',
     summary: 'A full push-up with a fraction of the load.',
     instructions: [
@@ -446,6 +491,7 @@ const list: Exercise[] = [
     ],
     cues: ['Body stays one long line', 'Elbows around forty-five degrees from the torso'],
     backFriendly: true,
+    regression: 'Use a higher surface — a wall is the easiest.',
     progression: 'Use a lower surface each time it gets easy, until you reach the floor.',
   },
   {
@@ -454,6 +500,8 @@ const list: Exercise[] = [
     kind: 'reps',
     equipment: ['mat'],
     primary: ['chest', 'shoulders', 'arms'],
+    secondary: ['core'],
+    difficulty: 'foundation',
     glyph: 'push',
     summary: 'Bridges the gap between incline and full push-ups.',
     instructions: [
@@ -463,6 +511,8 @@ const list: Exercise[] = [
     ],
     cues: ['Hips do not sag or pike', 'Full range every rep'],
     backFriendly: true,
+    regression: 'Raise the hands onto a low surface.',
+    progression: 'Move to a full push-up from the toes.',
   },
   {
     id: 'push-up',
@@ -470,6 +520,8 @@ const list: Exercise[] = [
     kind: 'reps',
     equipment: ['mat'],
     primary: ['chest', 'shoulders', 'arms', 'core'],
+    secondary: ['back'],
+    difficulty: 'developing',
     glyph: 'push',
     summary: 'The benchmark upper-body movement, and a moving plank.',
     instructions: [
@@ -489,6 +541,8 @@ const list: Exercise[] = [
     kind: 'reps',
     equipment: ['mat'],
     primary: ['chest', 'shoulders', 'arms'],
+    secondary: ['core', 'back'],
+    difficulty: 'developing',
     glyph: 'push',
     summary: 'Same movement, far more time under tension.',
     instructions: [
@@ -498,6 +552,8 @@ const list: Exercise[] = [
     ],
     cues: ['Count the seconds out loud if it helps', 'Quality over quantity'],
     backFriendly: true,
+    regression: 'Do the same tempo from the knees.',
+    progression: 'Add a second pause halfway up as well as at the bottom.',
   },
   {
     id: 'decline-push-up',
@@ -505,6 +561,8 @@ const list: Exercise[] = [
     kind: 'reps',
     equipment: ['chair', 'mat'],
     primary: ['chest', 'shoulders'],
+    secondary: ['arms', 'core'],
+    difficulty: 'advanced',
     glyph: 'push',
     summary: 'Shifts the emphasis to the upper chest and shoulders.',
     instructions: [
@@ -514,6 +572,8 @@ const list: Exercise[] = [
     ],
     cues: ['Do not let the hips pike up', 'Brace hard — the leverage is against you'],
     backFriendly: true,
+    regression: 'Put the feet on the floor for a standard push-up.',
+    progression: 'Raise the feet higher, or slow the descent to four seconds.',
   },
   {
     id: 'archer-push-up',
@@ -521,6 +581,8 @@ const list: Exercise[] = [
     kind: 'repsPerSide',
     equipment: ['mat'],
     primary: ['chest', 'arms'],
+    secondary: ['shoulders', 'core'],
+    difficulty: 'advanced',
     glyph: 'push',
     summary: 'Shifts most of the load onto one arm at a time.',
     instructions: [
@@ -530,6 +592,8 @@ const list: Exercise[] = [
     ],
     cues: ['Hips stay square', 'Only go as low as you can control'],
     backFriendly: true,
+    regression: 'Take a narrower stance and shift less weight.',
+    progression: 'Shift further onto the working arm until it is a one-arm push-up.',
   },
   {
     id: 'pike-push-up',
@@ -537,6 +601,8 @@ const list: Exercise[] = [
     kind: 'reps',
     equipment: ['mat'],
     primary: ['shoulders', 'arms'],
+    secondary: ['core'],
+    difficulty: 'developing',
     glyph: 'press',
     summary: 'Overhead pressing strength using only bodyweight.',
     instructions: [
@@ -546,6 +612,8 @@ const list: Exercise[] = [
     ],
     cues: ['Elbows travel back and slightly out', 'Keep the hips high throughout'],
     backFriendly: true,
+    regression: 'Keep the hips lower, closer to a normal push-up.',
+    progression: 'Elevate the feet on a chair.',
   },
   {
     id: 'band-chest-press',
@@ -553,6 +621,8 @@ const list: Exercise[] = [
     kind: 'reps',
     equipment: ['band'],
     primary: ['chest', 'arms'],
+    secondary: ['shoulders', 'core'],
+    difficulty: 'foundation',
     glyph: 'press',
     summary: 'Horizontal pressing with resistance that builds through the range.',
     instructions: [
@@ -562,6 +632,8 @@ const list: Exercise[] = [
     ],
     cues: ['Shoulder blades stay set', 'Resist the band on the way back'],
     backFriendly: true,
+    regression: 'Step closer to the anchor to reduce tension.',
+    progression: 'Step further away, or use a heavier band.',
   },
   {
     id: 'band-overhead-press',
@@ -569,6 +641,8 @@ const list: Exercise[] = [
     kind: 'reps',
     equipment: ['band'],
     primary: ['shoulders', 'arms'],
+    secondary: ['core'],
+    difficulty: 'foundation',
     glyph: 'press',
     summary: 'Builds overhead strength and shoulder stability.',
     instructions: [
@@ -578,6 +652,8 @@ const list: Exercise[] = [
     ],
     cues: ['Do not lean back to finish the rep', 'Head moves through at the top'],
     backFriendly: true,
+    regression: 'Use a lighter band, or press one arm at a time.',
+    progression: 'Use a heavier band, or pause two seconds overhead.',
   },
   {
     id: 'db-shoulder-press',
@@ -585,6 +661,8 @@ const list: Exercise[] = [
     kind: 'reps',
     equipment: ['dumbbell'],
     primary: ['shoulders', 'arms'],
+    secondary: ['core'],
+    difficulty: 'developing',
     glyph: 'press',
     summary: 'The main overhead builder once dumbbells arrive.',
     instructions: [
@@ -594,6 +672,8 @@ const list: Exercise[] = [
     ],
     cues: ['Ribs down, no back arch', 'Wrists stacked over the elbows'],
     backFriendly: true,
+    regression: 'Press one arm at a time, or use a band.',
+    progression: 'Pause two seconds at the top, or press seated to remove leg drive.',
     loadable: true,
   },
   {
@@ -602,6 +682,8 @@ const list: Exercise[] = [
     kind: 'reps',
     equipment: ['dumbbell', 'mat'],
     primary: ['chest', 'arms'],
+    secondary: ['shoulders'],
+    difficulty: 'foundation',
     glyph: 'press',
     summary: 'Chest pressing with the floor limiting the range — very shoulder friendly.',
     instructions: [
@@ -611,6 +693,8 @@ const list: Exercise[] = [
     ],
     cues: ['Elbows at forty-five degrees', 'Lower back stays lightly pressed to the mat'],
     backFriendly: true,
+    regression: 'Use lighter weights and press one arm at a time.',
+    progression: 'Pause two seconds with the arms on the floor.',
     loadable: true,
   },
   {
@@ -619,6 +703,8 @@ const list: Exercise[] = [
     kind: 'reps',
     equipment: ['dumbbell'],
     primary: ['shoulders'],
+    secondary: ['back'],
+    difficulty: 'foundation',
     glyph: 'shoulder',
     summary: 'Builds the width of the shoulders.',
     instructions: [
@@ -628,6 +714,8 @@ const list: Exercise[] = [
     ],
     cues: ['Lead with the elbows', 'No swinging or shrugging'],
     backFriendly: true,
+    regression: 'Bend the elbows more to shorten the lever.',
+    progression: 'Add a three-second lowering phase.',
     loadable: true,
   },
   {
@@ -636,6 +724,8 @@ const list: Exercise[] = [
     kind: 'reps',
     equipment: ['chair'],
     primary: ['arms', 'chest'],
+    secondary: ['shoulders'],
+    difficulty: 'developing',
     glyph: 'push',
     summary: 'Direct triceps work with no equipment beyond a chair.',
     instructions: [
@@ -654,6 +744,8 @@ const list: Exercise[] = [
     kind: 'reps',
     equipment: ['band'],
     primary: ['arms'],
+    secondary: ['shoulders'],
+    difficulty: 'foundation',
     glyph: 'curl',
     summary: 'Isolates the back of the arm.',
     instructions: [
@@ -663,6 +755,8 @@ const list: Exercise[] = [
     ],
     cues: ['Only the forearms move', 'Squeeze at full extension'],
     backFriendly: true,
+    regression: 'Use a lighter band, or one arm at a time.',
+    progression: 'Use a heavier band and pause at full extension.',
   },
   {
     id: 'db-overhead-extension',
@@ -670,6 +764,8 @@ const list: Exercise[] = [
     kind: 'reps',
     equipment: ['dumbbell'],
     primary: ['arms'],
+    secondary: ['shoulders'],
+    difficulty: 'developing',
     glyph: 'curl',
     summary: 'Loads the triceps in a stretched position, where they grow best.',
     instructions: [
@@ -679,6 +775,8 @@ const list: Exercise[] = [
     ],
     cues: ['Elbows stay narrow', 'Control the stretch'],
     backFriendly: true,
+    regression: 'Use one lighter dumbbell in both hands.',
+    progression: 'Slow the lowering phase to four seconds.',
     loadable: true,
   },
 
@@ -689,6 +787,8 @@ const list: Exercise[] = [
     kind: 'reps',
     equipment: ['mat'],
     primary: ['back', 'shoulders'],
+    secondary: ['core'],
+    difficulty: 'foundation',
     glyph: 'row',
     summary: 'Mid-back work when there is no band or bar to hand.',
     instructions: [
@@ -700,6 +800,8 @@ const list: Exercise[] = [
     ],
     cues: ['Lift from the shoulder blades, not the hands', 'Neck stays long and relaxed'],
     backFriendly: true,
+    regression: 'Do one letter per set rather than all three.',
+    progression: 'Hold each position for three seconds, or hold light weights.',
   },
   {
     id: 'band-row',
@@ -707,6 +809,8 @@ const list: Exercise[] = [
     kind: 'reps',
     equipment: ['band'],
     primary: ['back', 'arms'],
+    secondary: ['shoulders'],
+    difficulty: 'foundation',
     glyph: 'row',
     summary: 'The main mid-back builder, and the antidote to desk posture.',
     instructions: [
@@ -717,6 +821,8 @@ const list: Exercise[] = [
     ],
     cues: ['Lead with the elbows, not the hands', 'Chest tall, shoulders down'],
     backFriendly: true,
+    regression: 'Step closer to the anchor.',
+    progression: 'Step back for more tension, or pause two seconds at the ribs.',
   },
   {
     id: 'band-bent-row',
@@ -724,6 +830,8 @@ const list: Exercise[] = [
     kind: 'reps',
     equipment: ['band'],
     primary: ['back', 'arms'],
+    secondary: ['core', 'glutes'],
+    difficulty: 'developing',
     glyph: 'row',
     summary: 'Rowing while holding a braced hinge — two skills at once.',
     instructions: [
@@ -733,6 +841,8 @@ const list: Exercise[] = [
     ],
     cues: ['The torso does not move — only the arms', 'Flat back throughout'],
     backFriendly: true,
+    regression: 'Row standing upright instead of hinged.',
+    progression: 'Stand on more of the band, or pause at the top.',
   },
   {
     id: 'band-lat-pulldown',
@@ -740,6 +850,8 @@ const list: Exercise[] = [
     kind: 'reps',
     equipment: ['band'],
     primary: ['back'],
+    secondary: ['arms', 'shoulders'],
+    difficulty: 'foundation',
     glyph: 'pull',
     summary: 'Vertical pulling until a pull-up bar is available.',
     instructions: [
@@ -750,6 +862,8 @@ const list: Exercise[] = [
     ],
     cues: ['Chest up', 'Feel the outer back working, not the arms'],
     backFriendly: true,
+    regression: 'Use a lighter band, or pull one arm at a time.',
+    progression: 'Kneel to remove leg assistance, or move to negative pull-ups.',
   },
   {
     id: 'band-face-pull',
@@ -757,6 +871,8 @@ const list: Exercise[] = [
     kind: 'reps',
     equipment: ['band'],
     primary: ['shoulders', 'back'],
+    secondary: ['arms'],
+    difficulty: 'foundation',
     glyph: 'row',
     summary: 'The best single exercise for shoulder health.',
     instructions: [
@@ -766,6 +882,8 @@ const list: Exercise[] = [
     ],
     cues: ['Elbows stay above the wrists', 'Squeeze for a second at the end'],
     backFriendly: true,
+    regression: 'Use a lighter band and a smaller range.',
+    progression: 'Pause three seconds with the hands beside the ears.',
   },
   {
     id: 'band-reverse-fly',
@@ -773,6 +891,8 @@ const list: Exercise[] = [
     kind: 'reps',
     equipment: ['band'],
     primary: ['back', 'shoulders'],
+    secondary: ['arms'],
+    difficulty: 'foundation',
     glyph: 'row',
     summary: 'Targets the rear shoulders, which almost everyone under-trains.',
     instructions: [
@@ -782,6 +902,8 @@ const list: Exercise[] = [
     ],
     cues: ['Arms stay long', 'No shrugging'],
     backFriendly: true,
+    regression: 'Bend the elbows to shorten the lever.',
+    progression: 'Use a heavier band and slow the return.',
   },
   {
     id: 'band-curl',
@@ -789,6 +911,8 @@ const list: Exercise[] = [
     kind: 'reps',
     equipment: ['band'],
     primary: ['arms'],
+    secondary: ['shoulders'],
+    difficulty: 'foundation',
     glyph: 'curl',
     summary: 'Straightforward arm work.',
     instructions: [
@@ -798,6 +922,8 @@ const list: Exercise[] = [
     ],
     cues: ['Elbows stay still', 'No leaning back'],
     backFriendly: true,
+    regression: 'Use a lighter band, or curl one arm at a time.',
+    progression: 'Slow the lowering phase to four seconds.',
   },
   {
     id: 'db-row',
@@ -805,6 +931,8 @@ const list: Exercise[] = [
     kind: 'repsPerSide',
     equipment: ['dumbbell', 'chair'],
     primary: ['back', 'arms'],
+    secondary: ['shoulders', 'core'],
+    difficulty: 'developing',
     glyph: 'row',
     summary: 'Heavy back work with the spine supported.',
     instructions: [
@@ -814,6 +942,8 @@ const list: Exercise[] = [
     ],
     cues: ['Do not rotate the torso to lift the weight', 'Pull to the hip, not the shoulder'],
     backFriendly: true,
+    regression: 'Use a lighter weight and a shorter range.',
+    progression: 'Pause two seconds at the hip on every rep.',
     loadable: true,
   },
   {
@@ -822,6 +952,8 @@ const list: Exercise[] = [
     kind: 'reps',
     equipment: ['dumbbell'],
     primary: ['arms'],
+    secondary: ['shoulders'],
+    difficulty: 'foundation',
     glyph: 'curl',
     summary: 'Loaded arm work from phase two.',
     instructions: [
@@ -831,6 +963,8 @@ const list: Exercise[] = [
     ],
     cues: ['No swinging', 'Three seconds down'],
     backFriendly: true,
+    regression: 'Curl one arm at a time.',
+    progression: 'Slow the lowering phase, or pause halfway up.',
     loadable: true,
   },
   {
@@ -839,6 +973,8 @@ const list: Exercise[] = [
     kind: 'repsPerSide',
     equipment: ['dumbbell', 'mat'],
     primary: ['back', 'core'],
+    secondary: ['shoulders', 'arms'],
+    difficulty: 'advanced',
     glyph: 'row',
     summary: 'A plank that also rows — brutal anti-rotation work.',
     instructions: [
@@ -848,6 +984,8 @@ const list: Exercise[] = [
     ],
     cues: ['Hips must not twist', 'Wide feet make it easier'],
     backFriendly: true,
+    regression: 'Row from the knees, or drop the weights and do plank shoulder taps.',
+    progression: 'Narrow the feet, which makes the anti-rotation demand far higher.',
     loadable: true,
   },
   {
@@ -856,6 +994,8 @@ const list: Exercise[] = [
     kind: 'time',
     equipment: ['pullupBar'],
     primary: ['back', 'arms'],
+    secondary: ['core'],
+    difficulty: 'foundation',
     glyph: 'pull',
     summary: 'Builds the grip and shoulder tolerance a pull-up needs.',
     instructions: [
@@ -865,6 +1005,8 @@ const list: Exercise[] = [
     ],
     cues: ['Stay relaxed', 'Stop before the grip fails completely'],
     backFriendly: true,
+    regression: 'Keep the feet on a chair to take some weight.',
+    progression: 'Hang from one arm at a time, or add time each week.',
   },
   {
     id: 'negative-pull-up',
@@ -872,6 +1014,8 @@ const list: Exercise[] = [
     kind: 'reps',
     equipment: ['pullupBar'],
     primary: ['back', 'arms'],
+    secondary: ['core'],
+    difficulty: 'developing',
     glyph: 'pull',
     summary: 'The fastest honest route to a first pull-up.',
     instructions: [
@@ -881,6 +1025,8 @@ const list: Exercise[] = [
     ],
     cues: ['Fight the whole way down', 'Shoulders stay pulled down'],
     backFriendly: true,
+    regression: 'Use a band under the knees, or shorten the range.',
+    progression: 'Take longer to lower — aim for eight seconds.',
   },
   {
     id: 'pull-up',
@@ -888,6 +1034,8 @@ const list: Exercise[] = [
     kind: 'reps',
     equipment: ['pullupBar'],
     primary: ['back', 'arms'],
+    secondary: ['core', 'shoulders'],
+    difficulty: 'advanced',
     glyph: 'pull',
     summary: 'The benchmark upper-body pull.',
     instructions: [
@@ -897,6 +1045,7 @@ const list: Exercise[] = [
     ],
     cues: ['No kicking', 'Full range beats extra reps'],
     backFriendly: true,
+    progression: 'Pause at the top, or add weight in a backpack.',
     regression: 'Negatives, or band-assisted reps.',
   },
 
@@ -907,6 +1056,8 @@ const list: Exercise[] = [
     kind: 'time',
     equipment: ['mat'],
     primary: ['core'],
+    secondary: ['shoulders', 'glutes'],
+    difficulty: 'foundation',
     glyph: 'plank',
     summary: 'Trains the trunk to resist movement — exactly what a sore back needs.',
     instructions: [
@@ -925,6 +1076,8 @@ const list: Exercise[] = [
     kind: 'timePerSide',
     equipment: ['mat'],
     primary: ['core'],
+    secondary: ['glutes', 'shoulders'],
+    difficulty: 'developing',
     glyph: 'plank',
     summary: 'Loads the side of the trunk with almost no spinal compression.',
     instructions: [
@@ -934,6 +1087,7 @@ const list: Exercise[] = [
     ],
     cues: ['Do not let the hips sink', 'Top shoulder stacked over the bottom one'],
     backFriendly: true,
+    progression: 'Lift the top leg, or reach the top arm under and through.',
     regression: 'Bend the knees and pivot from them instead of the feet.',
   },
   {
@@ -942,6 +1096,8 @@ const list: Exercise[] = [
     kind: 'timePerSide',
     equipment: ['mat'],
     primary: ['core'],
+    secondary: ['chest'],
+    difficulty: 'foundation',
     glyph: 'core',
     summary: 'Abdominal work that keeps the lower back in its neutral position.',
     instructions: [
@@ -952,6 +1108,8 @@ const list: Exercise[] = [
     ],
     cues: ['The lower back never flattens', 'Tiny range — this is not a sit-up'],
     backFriendly: true,
+    regression: 'Lift only the head, leaving the shoulders down.',
+    progression: 'Hold each rep for ten seconds instead of five.',
   },
   {
     id: 'pallof-press',
@@ -959,6 +1117,8 @@ const list: Exercise[] = [
     kind: 'repsPerSide',
     equipment: ['band'],
     primary: ['core'],
+    secondary: ['shoulders'],
+    difficulty: 'foundation',
     glyph: 'twist',
     summary: 'Pure anti-rotation — the trunk works hardest by refusing to move.',
     instructions: [
@@ -969,6 +1129,8 @@ const list: Exercise[] = [
     ],
     cues: ['Hips and shoulders stay square forward', 'Slow, controlled press'],
     backFriendly: true,
+    regression: 'Stand closer to the anchor.',
+    progression: 'Step further out, or press overhead at the end of each rep.',
   },
   {
     id: 'hollow-hold',
@@ -976,6 +1138,8 @@ const list: Exercise[] = [
     kind: 'time',
     equipment: ['mat'],
     primary: ['core'],
+    secondary: ['legs'],
+    difficulty: 'developing',
     glyph: 'core',
     summary: 'Full-body tension that carries into every other movement.',
     instructions: [
@@ -985,6 +1149,7 @@ const list: Exercise[] = [
     ],
     cues: ['If the back lifts, raise the legs higher', 'Breathe shallow but steady'],
     backFriendly: true,
+    progression: 'Straighten fully and add a slow rock.',
     regression: 'Bend the knees and keep the arms by the hips.',
   },
   {
@@ -993,6 +1158,8 @@ const list: Exercise[] = [
     kind: 'repsPerSide',
     equipment: ['mat'],
     primary: ['core', 'shoulders'],
+    secondary: ['chest'],
+    difficulty: 'developing',
     glyph: 'plank',
     summary: 'Anti-rotation with a moving base of support.',
     instructions: [
@@ -1002,22 +1169,8 @@ const list: Exercise[] = [
     ],
     cues: ['Hips completely still', 'Wider feet make it easier'],
     backFriendly: true,
-  },
-  {
-    id: 'slow-mountain-climber',
-    name: 'Slow Mountain Climber',
-    kind: 'repsPerSide',
-    equipment: ['mat'],
-    primary: ['core', 'legs'],
-    glyph: 'core',
-    summary: 'A plank with controlled hip movement.',
-    instructions: [
-      'Hold a high plank.',
-      'Draw one knee slowly towards the chest without the hips rising.',
-      'Return it and swap sides. Speed is not the point.',
-    ],
-    cues: ['Shoulders stay over the wrists', 'Hips stay low and level'],
-    backFriendly: true,
+    regression: 'Widen the feet, or tap from the knees.',
+    progression: 'Narrow the feet until they are together.',
   },
   {
     id: 'leg-lowering',
@@ -1025,6 +1178,8 @@ const list: Exercise[] = [
     kind: 'reps',
     equipment: ['mat'],
     primary: ['core'],
+    secondary: ['legs'],
+    difficulty: 'developing',
     glyph: 'core',
     summary: 'Teaches the deep core to control the pelvis.',
     instructions: [
@@ -1034,6 +1189,7 @@ const list: Exercise[] = [
     ],
     cues: ['The back flattening is the limit, not the legs', 'Exhale as the legs lower'],
     backFriendly: true,
+    progression: 'Add a three-second pause at the lowest point you can hold.',
     regression: 'Bend the knees, or lower one leg at a time.',
   },
   {
@@ -1042,6 +1198,8 @@ const list: Exercise[] = [
     kind: 'time',
     equipment: ['dumbbell', 'mat'],
     primary: ['core'],
+    secondary: ['shoulders', 'glutes'],
+    difficulty: 'advanced',
     glyph: 'plank',
     summary: 'Progresses the plank without adding minutes to it.',
     instructions: [
@@ -1050,6 +1208,8 @@ const list: Exercise[] = [
     ],
     cues: ['Add load rather than time', 'Stop the set when the hips start to drop'],
     backFriendly: true,
+    regression: 'Remove the weight and hold a standard plank.',
+    progression: 'Add load rather than time — the hold should stay near thirty seconds.',
     loadable: true,
   },
 
@@ -1060,6 +1220,8 @@ const list: Exercise[] = [
     kind: 'time',
     equipment: ['mat'],
     primary: ['mobility', 'back'],
+    secondary: ['shoulders'],
+    difficulty: 'foundation',
     glyph: 'stretch',
     summary: 'Decompresses the lower back and calms the nervous system.',
     instructions: [
@@ -1069,6 +1231,8 @@ const list: Exercise[] = [
     ],
     cues: ['Long, slow exhales', 'Let the shoulders melt'],
     backFriendly: true,
+    regression: 'Place a cushion between the heels and hips.',
+    progression: 'Walk the hands to one side to reach the lats.',
   },
   {
     id: 'knee-to-chest',
@@ -1076,6 +1240,8 @@ const list: Exercise[] = [
     kind: 'timePerSide',
     equipment: ['mat'],
     primary: ['mobility', 'back'],
+    secondary: ['glutes'],
+    difficulty: 'foundation',
     glyph: 'stretch',
     summary: 'A gentle, reliable way to settle a tight lower back.',
     instructions: [
@@ -1085,6 +1251,8 @@ const list: Exercise[] = [
     ],
     cues: ['Shoulders stay relaxed on the mat', 'Never force the range'],
     backFriendly: true,
+    regression: 'Hold behind the thigh rather than over the knee.',
+    progression: 'Draw both knees up together.',
   },
   {
     id: 'supine-twist',
@@ -1092,6 +1260,8 @@ const list: Exercise[] = [
     kind: 'timePerSide',
     equipment: ['mat'],
     primary: ['mobility', 'back'],
+    secondary: ['glutes'],
+    difficulty: 'foundation',
     glyph: 'twist',
     summary: 'Releases the lower back and opens the chest at the same time.',
     instructions: [
@@ -1101,6 +1271,8 @@ const list: Exercise[] = [
     ],
     cues: ['Both shoulders stay down', 'A pillow under the knee helps if it hovers'],
     backFriendly: true,
+    regression: 'Rest the top knee on a cushion.',
+    progression: 'Straighten the top leg for a deeper stretch.',
   },
   {
     id: 'prone-press-up',
@@ -1108,6 +1280,8 @@ const list: Exercise[] = [
     kind: 'reps',
     equipment: ['mat'],
     primary: ['mobility', 'back'],
+    secondary: ['core'],
+    difficulty: 'foundation',
     glyph: 'stretch',
     summary: 'Gentle extension, often the fastest relief for a disc-irritated back.',
     instructions: [
@@ -1117,6 +1291,8 @@ const list: Exercise[] = [
     ],
     cues: ['Hips stay in contact with the floor', 'Stop if it sends pain down a leg'],
     backFriendly: true,
+    regression: 'Press up onto the forearms only.',
+    progression: 'Straighten the arms further, keeping the hips down.',
   },
   {
     id: 'thread-the-needle',
@@ -1124,6 +1300,8 @@ const list: Exercise[] = [
     kind: 'timePerSide',
     equipment: ['mat'],
     primary: ['mobility', 'shoulders'],
+    secondary: ['back'],
+    difficulty: 'foundation',
     glyph: 'twist',
     summary: 'Rotation for the upper back, where it belongs.',
     instructions: [
@@ -1133,6 +1311,8 @@ const list: Exercise[] = [
     ],
     cues: ['Keep the hips stacked over the knees', 'Rotate from the upper back'],
     backFriendly: true,
+    regression: 'Rest the shoulder on a cushion.',
+    progression: 'Reach the free arm overhead as you rotate.',
   },
   {
     id: 'thoracic-rotation',
@@ -1140,6 +1320,8 @@ const list: Exercise[] = [
     kind: 'repsPerSide',
     equipment: ['mat'],
     primary: ['mobility', 'back'],
+    secondary: ['chest'],
+    difficulty: 'foundation',
     glyph: 'twist',
     summary: 'Restores the rotation that sitting steadily removes.',
     instructions: [
@@ -1149,6 +1331,8 @@ const list: Exercise[] = [
     ],
     cues: ['Knees stay glued together', 'Exhale as you open'],
     backFriendly: true,
+    regression: 'Keep the top arm bent and travel a shorter arc.',
+    progression: 'Hold the end position for three breaths each rep.',
   },
   {
     id: 'hip-flexor-stretch',
@@ -1156,6 +1340,8 @@ const list: Exercise[] = [
     kind: 'timePerSide',
     equipment: ['mat'],
     primary: ['mobility', 'legs'],
+    secondary: ['glutes'],
+    difficulty: 'foundation',
     glyph: 'hip',
     summary: 'Tight hip flexors pull the lower back into a constant arch.',
     instructions: [
@@ -1165,6 +1351,8 @@ const list: Exercise[] = [
     ],
     cues: ['The tuck matters more than the depth', 'Do not arch the lower back'],
     backFriendly: true,
+    regression: 'Kneel on a cushion and reduce the forward shift.',
+    progression: 'Raise the same-side arm overhead and lean away.',
   },
   {
     id: 'figure-four',
@@ -1172,6 +1360,8 @@ const list: Exercise[] = [
     kind: 'timePerSide',
     equipment: ['mat'],
     primary: ['mobility', 'glutes'],
+    secondary: ['back'],
+    difficulty: 'foundation',
     glyph: 'hip',
     summary: 'Reaches the deep glute muscles that refer pain into the back.',
     instructions: [
@@ -1181,6 +1371,8 @@ const list: Exercise[] = [
     ],
     cues: ['Keep the crossed knee open', 'Head stays on the mat'],
     backFriendly: true,
+    regression: 'Keep the supporting foot on the floor.',
+    progression: 'Draw the thigh closer, or do it seated on a chair.',
   },
   {
     id: 'ninety-ninety',
@@ -1188,6 +1380,8 @@ const list: Exercise[] = [
     kind: 'repsPerSide',
     equipment: ['mat'],
     primary: ['mobility', 'glutes'],
+    secondary: ['back'],
+    difficulty: 'developing',
     glyph: 'hip',
     summary: 'Rotational hip range, both directions.',
     instructions: [
@@ -1197,6 +1391,8 @@ const list: Exercise[] = [
     ],
     cues: ['Sit up on a cushion if the back rounds', 'The chest stays lifted'],
     backFriendly: true,
+    regression: 'Sit up on a cushion and reduce the range.',
+    progression: 'Lift the hands off the floor and move under control.',
   },
   {
     id: 'pigeon-stretch',
@@ -1204,6 +1400,8 @@ const list: Exercise[] = [
     kind: 'timePerSide',
     equipment: ['mat'],
     primary: ['mobility', 'glutes'],
+    secondary: ['back'],
+    difficulty: 'developing',
     glyph: 'hip',
     summary: 'A deeper glute and hip opener.',
     instructions: [
@@ -1213,6 +1411,8 @@ const list: Exercise[] = [
     ],
     cues: ['Support the hip with a cushion if it hovers', 'Ease off if the knee complains'],
     backFriendly: true,
+    regression: 'Do the figure four on your back instead.',
+    progression: 'Fold forward over the front shin.',
   },
   {
     id: 'hamstring-hinge-stretch',
@@ -1220,6 +1420,8 @@ const list: Exercise[] = [
     kind: 'timePerSide',
     equipment: ['bodyweight', 'chair'],
     primary: ['mobility', 'legs'],
+    secondary: ['back', 'glutes'],
+    difficulty: 'foundation',
     glyph: 'hamstring',
     summary: 'Lengthens the hamstrings without rounding the back.',
     instructions: [
@@ -1229,6 +1431,8 @@ const list: Exercise[] = [
     ],
     cues: ['The back stays flat — hinge, do not curl', 'Toes pulled towards the shin'],
     backFriendly: true,
+    regression: 'Use a lower step, or bend the knee slightly.',
+    progression: 'Use a higher step, or draw the toes back towards you.',
   },
   {
     id: 'supine-hamstring-stretch',
@@ -1236,6 +1440,8 @@ const list: Exercise[] = [
     kind: 'timePerSide',
     equipment: ['mat'],
     primary: ['mobility', 'legs'],
+    secondary: ['glutes'],
+    difficulty: 'foundation',
     glyph: 'hamstring',
     summary: 'The safest hamstring stretch for an irritable back.',
     instructions: [
@@ -1245,6 +1451,8 @@ const list: Exercise[] = [
     ],
     cues: ['Lower back stays neutral on the mat', 'Gentle, not aggressive'],
     backFriendly: true,
+    regression: 'Bend the knee and hold behind the thigh.',
+    progression: 'Straighten fully and draw the leg closer.',
   },
   {
     id: 'calf-stretch',
@@ -1252,6 +1460,8 @@ const list: Exercise[] = [
     kind: 'timePerSide',
     equipment: ['wall'],
     primary: ['mobility', 'legs'],
+    secondary: ['back'],
+    difficulty: 'foundation',
     glyph: 'calf',
     summary: 'Tight calves change how you walk and squat.',
     instructions: [
@@ -1261,6 +1471,8 @@ const list: Exercise[] = [
     ],
     cues: ['Back toes point straight at the wall', 'Heel does not lift'],
     backFriendly: true,
+    regression: 'Step the back foot closer to the wall.',
+    progression: 'Bend the back knee slightly to reach the deeper soleus.',
   },
   {
     id: 'doorway-chest-stretch',
@@ -1268,6 +1480,8 @@ const list: Exercise[] = [
     kind: 'timePerSide',
     equipment: ['wall'],
     primary: ['mobility', 'chest'],
+    secondary: ['shoulders'],
+    difficulty: 'foundation',
     glyph: 'shoulder',
     summary: 'Undoes hours of rounding forward at a desk.',
     instructions: [
@@ -1277,6 +1491,8 @@ const list: Exercise[] = [
     ],
     cues: ['Gentle pressure only', 'Stand tall — do not let the ribs flare'],
     backFriendly: true,
+    regression: 'Lower the elbow below shoulder height.',
+    progression: 'Raise the elbow slightly and rotate further away.',
   },
   {
     id: 'wall-angel',
@@ -1284,6 +1500,8 @@ const list: Exercise[] = [
     kind: 'reps',
     equipment: ['wall'],
     primary: ['mobility', 'shoulders'],
+    secondary: ['back'],
+    difficulty: 'foundation',
     glyph: 'shoulder',
     summary: 'Shoulder mobility and upper-back posture in one drill.',
     instructions: [
@@ -1293,6 +1511,8 @@ const list: Exercise[] = [
     ],
     cues: ['Lose contact and you have found your range', 'Ribs stay down'],
     backFriendly: true,
+    regression: 'Step the feet further from the wall.',
+    progression: 'Move the feet closer to the wall, which makes contact harder to keep.',
   },
   {
     id: 'band-dislocate',
@@ -1300,6 +1520,8 @@ const list: Exercise[] = [
     kind: 'reps',
     equipment: ['band'],
     primary: ['mobility', 'shoulders'],
+    secondary: ['chest'],
+    difficulty: 'foundation',
     glyph: 'shoulder',
     summary: 'Takes the shoulder through its full available arc.',
     instructions: [
@@ -1309,6 +1531,8 @@ const list: Exercise[] = [
     ],
     cues: ['Go wider if it pinches', 'Arms stay straight'],
     backFriendly: true,
+    regression: 'Hold the band wider.',
+    progression: 'Narrow the grip a little each week.',
   },
   {
     id: 'chin-tuck',
@@ -1316,6 +1540,8 @@ const list: Exercise[] = [
     kind: 'reps',
     equipment: ['bodyweight'],
     primary: ['mobility', 'shoulders'],
+    secondary: ['back'],
+    difficulty: 'foundation',
     glyph: 'neck',
     summary: 'Resets the head over the shoulders after screen time.',
     instructions: [
@@ -1325,6 +1551,8 @@ const list: Exercise[] = [
     ],
     cues: ['Straight back, not down', 'Small movement, big effect'],
     backFriendly: true,
+    regression: 'Do it lying on your back, where gravity assists.',
+    progression: 'Hold for ten seconds, or add light hand resistance.',
   },
   {
     id: 'neck-side-bend',
@@ -1332,6 +1560,8 @@ const list: Exercise[] = [
     kind: 'timePerSide',
     equipment: ['bodyweight'],
     primary: ['mobility'],
+    secondary: ['shoulders'],
+    difficulty: 'foundation',
     glyph: 'neck',
     summary: 'Eases the upper trapezius after a long day.',
     instructions: [
@@ -1341,6 +1571,8 @@ const list: Exercise[] = [
     ],
     cues: ['Opposite shoulder stays down', 'No pulling — let the weight of the hand do it'],
     backFriendly: true,
+    regression: 'Remove the hand and let the head fall under its own weight.',
+    progression: 'Anchor the opposite hand under your thigh to fix the shoulder.',
   },
   {
     id: 'levator-stretch',
@@ -1348,6 +1580,8 @@ const list: Exercise[] = [
     kind: 'timePerSide',
     equipment: ['bodyweight'],
     primary: ['mobility'],
+    secondary: ['shoulders'],
+    difficulty: 'foundation',
     glyph: 'neck',
     summary: 'For the specific knot at the base of the neck.',
     instructions: [
@@ -1357,6 +1591,8 @@ const list: Exercise[] = [
     ],
     cues: ['Very light pressure', 'Stop if there is any tingling'],
     backFriendly: true,
+    regression: 'Turn the head less far before looking down.',
+    progression: 'Anchor the opposite hand under your thigh.',
   },
   {
     id: 'seated-twist',
@@ -1364,6 +1600,8 @@ const list: Exercise[] = [
     kind: 'timePerSide',
     equipment: ['chair'],
     primary: ['mobility', 'back'],
+    secondary: ['core'],
+    difficulty: 'foundation',
     glyph: 'twist',
     summary: 'A rotation that fits in beside a desk.',
     instructions: [
@@ -1373,6 +1611,8 @@ const list: Exercise[] = [
     ],
     cues: ['Rotate from the ribs, not the neck', 'Both sit bones stay down'],
     backFriendly: true,
+    regression: 'Rotate without using the chair back for assistance.',
+    progression: 'Do it standing, or hold each end position for five breaths.',
   },
   {
     id: 'standing-side-bend',
@@ -1380,6 +1620,8 @@ const list: Exercise[] = [
     kind: 'timePerSide',
     equipment: ['bodyweight'],
     primary: ['mobility'],
+    secondary: ['core'],
+    difficulty: 'foundation',
     glyph: 'stretch',
     summary: 'Opens the side of the trunk and the lower ribs.',
     instructions: [
@@ -1389,6 +1631,8 @@ const list: Exercise[] = [
     ],
     cues: ['Do not lean forward or back', 'Long side, not a crunch'],
     backFriendly: true,
+    regression: 'Keep the reaching arm at shoulder height.',
+    progression: 'Clasp both hands overhead and lean further.',
   },
   {
     id: 'forward-fold',
@@ -1396,6 +1640,8 @@ const list: Exercise[] = [
     kind: 'time',
     equipment: ['bodyweight'],
     primary: ['mobility', 'legs'],
+    secondary: ['back'],
+    difficulty: 'foundation',
     glyph: 'hamstring',
     summary: 'A whole-back-line release with the knees kept soft.',
     instructions: [
@@ -1405,6 +1651,8 @@ const list: Exercise[] = [
     ],
     cues: ['Knees stay bent — this is not a hamstring test', 'Roll up one vertebra at a time'],
     backFriendly: true,
+    regression: 'Bend the knees generously and rest the hands on the shins.',
+    progression: 'Straighten the legs gradually as the hamstrings allow.',
   },
   {
     id: 'downward-dog',
@@ -1412,6 +1660,8 @@ const list: Exercise[] = [
     kind: 'time',
     equipment: ['mat'],
     primary: ['mobility', 'shoulders', 'legs'],
+    secondary: ['back', 'core'],
+    difficulty: 'developing',
     glyph: 'stretch',
     summary: 'Lengthens the whole back of the body at once.',
     instructions: [
@@ -1421,6 +1671,8 @@ const list: Exercise[] = [
     ],
     cues: ['A long spine beats straight legs', 'Ears between the arms'],
     backFriendly: true,
+    regression: 'Bend the knees and lift the heels.',
+    progression: 'Walk the heels towards the floor, or pedal one leg at a time.',
   },
   {
     id: 'worlds-greatest-stretch',
@@ -1428,6 +1680,8 @@ const list: Exercise[] = [
     kind: 'repsPerSide',
     equipment: ['mat'],
     primary: ['mobility'],
+    secondary: ['legs', 'glutes', 'back'],
+    difficulty: 'developing',
     glyph: 'stretch',
     summary: 'Hips, hamstrings and upper back in a single sequence.',
     instructions: [
@@ -1438,6 +1692,8 @@ const list: Exercise[] = [
     ],
     cues: ['Move slowly through each position', 'Breathe at every stop'],
     backFriendly: true,
+    regression: 'Keep the back knee down throughout.',
+    progression: 'Lift the back knee off the floor for the whole sequence.',
   },
   {
     id: 'legs-up-wall',
@@ -1445,6 +1701,8 @@ const list: Exercise[] = [
     kind: 'time',
     equipment: ['wall', 'mat'],
     primary: ['mobility'],
+    secondary: ['back'],
+    difficulty: 'foundation',
     glyph: 'breathe',
     summary: 'The most restful two minutes of the day.',
     instructions: [
@@ -1454,6 +1712,8 @@ const list: Exercise[] = [
     ],
     cues: ['A folded towel under the hips can help', 'Let the legs be completely passive'],
     backFriendly: true,
+    regression: 'Move the hips further from the wall.',
+    progression: 'Let the legs fall open into a wide V.',
   },
   {
     id: 'diaphragmatic-breathing',
@@ -1461,6 +1721,8 @@ const list: Exercise[] = [
     kind: 'time',
     equipment: ['mat'],
     primary: ['mobility', 'core'],
+    secondary: ['back'],
+    difficulty: 'foundation',
     glyph: 'breathe',
     summary: 'Down-regulates the nervous system and quietens a guarded back.',
     instructions: [
@@ -1470,6 +1732,8 @@ const list: Exercise[] = [
     ],
     cues: ['The exhale should be longer than the inhale', 'Chest hand stays still'],
     backFriendly: true,
+    regression: 'Sit upright if lying flat is uncomfortable.',
+    progression: 'Extend the exhale to eight counts.',
   },
 ]
 
@@ -1490,11 +1754,15 @@ export function requireExercise(id: string): Exercise {
       kind: 'reps',
       equipment: ['bodyweight'],
       primary: ['fullBody'],
+      secondary: [],
+      difficulty: 'foundation',
       glyph: 'core',
       summary: 'This movement is no longer in the library.',
       instructions: ['Skip this one and carry on with the session.'],
       cues: [],
       backFriendly: true,
+      regression: 'Skip it.',
+      progression: 'Skip it.',
     }
   )
 }
