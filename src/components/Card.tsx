@@ -1,15 +1,25 @@
 import type { HTMLAttributes, ReactNode } from 'react'
 import { cn } from '@/lib/cn'
 
+/**
+ * `tone` rather than a background class in `className`: both would be the same
+ * specificity, so which one won would depend on stylesheet order rather than
+ * intent. This makes the choice explicit and impossible to get wrong.
+ */
 export function Card({
   className,
   children,
+  tone = 'surface',
   ...props
-}: HTMLAttributes<HTMLDivElement> & { children: ReactNode }) {
+}: HTMLAttributes<HTMLDivElement> & {
+  children: ReactNode
+  tone?: 'surface' | 'sunken'
+}) {
   return (
     <div
       className={cn(
-        'rounded-xl2 border border-line bg-surface p-5 shadow-card',
+        'rounded-xl2 border border-line p-5',
+        tone === 'sunken' ? 'bg-sunken' : 'bg-surface shadow-card',
         className,
       )}
       {...props}

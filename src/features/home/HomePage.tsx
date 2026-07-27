@@ -128,7 +128,7 @@ export function HomePage() {
       />
 
       {/* Recovery is advice too, and it is the half people skip. */}
-      <Card className="mb-section flex items-start gap-3 bg-sunken">
+      <Card tone="sunken" className="mb-section flex items-start gap-3">
         <Wind className="mt-0.5 h-4 w-4 shrink-0 text-teal" />
         <p className="text-label leading-relaxed text-muted">{advice.recovery}</p>
       </Card>
@@ -177,7 +177,7 @@ export function HomePage() {
         <HabitChecklist date={today} />
       </div>
 
-      <Card className="bg-sunken">
+      <Card tone="sunken">
         <QuoteIcon className="h-5 w-5 text-accent" />
         <p className="mt-3 text-heading font-medium leading-relaxed text-ink">{quote.text}</p>
         <p className="mt-2 text-label text-faint">{quote.author}</p>

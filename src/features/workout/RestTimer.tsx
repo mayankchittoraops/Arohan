@@ -34,16 +34,16 @@ export function RestTimer({
       aria-label={`Resting, ${Math.ceil(remaining)} seconds remaining`}
     >
       <div className="mx-auto max-w-lg overflow-hidden rounded-xl3 border border-line bg-raised/95 shadow-lifted backdrop-blur-xl">
-        <div className="flex flex-col items-center px-5 pb-5 pt-6">
-          <CircularTimer remaining={remaining} total={total} label="Rest" size={168} />
+        <div className="flex flex-col items-center px-5 pb-4 pt-5">
+          <CircularTimer remaining={remaining} total={total} label="Rest" size={148} />
 
           {nextLabel ? (
-            <p className="mt-4 text-center text-label text-muted">
+            <p className="mt-3 text-center text-label text-muted">
               Next up · <span className="font-semibold text-ink">{nextLabel}</span>
             </p>
           ) : null}
 
-          <div className="mt-5 flex w-full gap-3">
+          <div className="mt-4 flex w-full gap-3">
             <button
               type="button"
               onClick={onAdd}

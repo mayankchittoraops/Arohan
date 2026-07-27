@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { AnimatePresence } from 'framer-motion'
 import { ChevronLeft, ChevronRight, Pause, Play, X } from 'lucide-react'
@@ -46,6 +46,13 @@ export function ActiveWorkoutPage() {
   /** Which way the last navigation went, so the card slides the right way. */
   const [goingBack, setGoingBack] = useState(false)
   const [completed, setCompleted] = useState<Completion | null>(null)
+  /**
+   * Set synchronously the moment finishing starts. `finishSession` clears the
+   * session row, which makes the live query emit undefined several awaits
+   * before `completed` is set — without this the redirect below would fire in
+   * that gap and skip straight past the celebration.
+   */
+  const finishingRef = useRef(false)
 
   const cue = useFeedback({
     sound: settings?.soundEnabled ?? true,
@@ -69,7 +76,9 @@ export function ActiveWorkoutPage() {
 
   // A session that was finished or discarded in another tab should not strand us.
   useEffect(() => {
-    if (!loading && !session && !completed) navigate('/workout', { replace: true })
+    if (!loading && !session && !completed && !finishingRef.current) {
+      navigate('/workout', { replace: true })
+    }
   }, [loading, session, completed, navigate])
 
   const startRest = useCallback(
@@ -156,6 +165,7 @@ export function ActiveWorkoutPage() {
   const handleFinish = useCallback(
     async (values: FinishValues) => {
       if (!session) return
+      finishingRef.current = true
       setSaving(true)
       try {
         const entry = toHistoryEntry(pauseSession(session), values)
@@ -170,6 +180,9 @@ export function ActiveWorkoutPage() {
           plannedSets: entry.plannedSets,
           totalReps: entry.totalReps,
         })
+      } catch (error) {
+        finishingRef.current = false
+        throw error
       } finally {
         setSaving(false)
       }
