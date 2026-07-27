@@ -4,7 +4,7 @@ import { addDays, daysBetween, type DateKey } from '@/lib/date'
 import type { DailyHealth, HabitLog, Measurement, WorkoutHistoryEntry } from './types'
 
 /** Exercise ids that count towards the push-up and plank records. */
-const PUSHUP_IDS = ['push-up', 'tempo-push-up', 'decline-push-up']
+const PUSHUP_IDS = ['push-up', 'decline-push-up', 'archer-push-up']
 const PLANK_IDS = ['front-plank', 'weighted-plank']
 
 export interface StreakResult {

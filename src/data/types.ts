@@ -137,7 +137,6 @@ export interface MobilityRoutine {
   subtitle: string
   /** Why you would reach for this routine. */
   intent: string
-  minutes: number
   accent: string
   glyph: GlyphKey
   moves: PlannedExercise[]

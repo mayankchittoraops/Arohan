@@ -10,6 +10,13 @@ import './index.css'
 
 void ensureSeeded()
 
+// Ask the browser not to evict this origin. Everything lives in IndexedDB with
+// no server copy, and iOS clears storage for origins it thinks are idle — this
+// is the difference between an inconvenience and losing a year of history.
+// Safari only grants it for installed or frequently-used sites, so it is asked
+// every launch rather than once.
+void navigator.storage?.persist?.().catch(() => undefined)
+
 // Takes the newest build on the next visit; nothing is interrupted mid-session.
 registerSW({ immediate: true })
 

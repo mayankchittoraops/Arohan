@@ -1,95 +1,121 @@
 # Known Issues
 
-Honest state of the app after Phase 2. Ordered by risk.
+Honest state of the app at **Version 1.0 Beta**. Ordered by risk.
 
-## 1. No tests
+Five of the eight issues from Phase 2 are closed — see [Closed](#closed) at the bottom for
+what changed and why it mattered.
 
-There is no test runner and no assertions anywhere. This remains the largest
-risk in the codebase, and Phase 2 did not change it — the phase brief listed
-error boundaries, loading states, dead code, types, bundle size and
-documentation under code quality, and adding a test framework was outside that
-scope.
+---
 
-It matters because the highest-value targets are pure and trivially testable:
-`coach()`, `computeStreak`, `progressionFor`, `resolveSession` substitution,
-`summarise`, `painFreeRun` and the date maths. Every bug found across both
-phases lived in exactly that kind of code:
+## 1. Mobile Lighthouse performance is unverified on real hardware
 
-- the Dexie live-query tracking failure that froze settings
-- the lost-update race between ticking a set and advancing
-- the duplicate substitute when bands were unticked
-- the celebration being skipped by the redirect guard
-- the `Card` background lost to CSS ordering
+Desktop is a stable 100 with 0 ms total blocking time. Mobile returns 88–93 across runs on
+identical code, with TBT swinging 210–330 ms. That spread is measurement noise from a
+CPU-contended build container, not the app changing between runs.
 
-All five were caught by driving a real browser, which is slower and less
-reliable than a unit test would have been. **First item of Phase 3.**
+The real figure needs a run on the actual iPad. Until then, treat 93 as a floor and the true
+number as unknown. **This is the only quality figure in the project that has not been
+independently confirmed**, and re-measuring it is the first thing worth doing with real
+hardware.
 
-## 2. Mobile Lighthouse performance is unverified on real hardware
+## 2. The entry chunk carries the whole exercise library
 
-Desktop is a stable 100. Mobile returned 88–95 across runs on identical code,
-with total blocking time swinging 230–330 ms against 10 ms on desktop. That
-spread is measurement noise from a CPU-contended build container, not a change
-in the app between runs.
+633 KB raw, 198 KB gzipped, containing React, Dexie, Router, Framer Motion and all 83
+movements with their full metadata. Lighthouse reports roughly 74 KiB of unused JavaScript
+on first load.
 
-The real figure needs a run on an actual iPad or iPhone. Until then, treat the
-mobile number as unknown rather than as 92.
+Splitting the library out is possible but would push `requireExercise` from a synchronous
+call to an async one, which touches most screens and every test that uses it. Not worth
+doing without a measured problem on real hardware — which is issue #1.
 
-The entry chunk is 616 KB (about 195 KB gzipped) and carries React, Dexie,
-Router, Framer Motion and the whole exercise library. Lighthouse reports ~74 KiB
-of unused JavaScript on first load. Splitting the library out is possible but
-would push `requireExercise` from a synchronous call to an async one, which
-touches most screens — not worth it without a measured problem on real hardware.
+Mitigations already in place: Progress and Settings are lazy, so Chart.js never touches the
+critical path, and the Body screen uses an inline SVG sparkline rather than a charting
+library.
 
-## 3. No database migration path
+## 3. Photos are never pruned, and inflate in the backup
 
-The schema is still only `version(1)`. The first change to a stored record
-shape needs a Dexie upgrade function; without one, existing installs break on
-open. `backup.ts` versions the export format, but nothing versions the database.
+Progress photos are downscaled to 1280 px on the long edge and stored as native `Blob`s,
+which is efficient. Nothing deletes them, and the JSON export encodes them as base64 —
+roughly a third larger than the binary.
 
-Phase 2 added fields to `Exercise`, which is static content and therefore safe —
-but `ExerciseLog` and the rest of `storage/types.ts` are stored, and the next
-change there is the dangerous one.
+A year of weekly photos produces an export in the tens of megabytes. Everything else in the
+database put together is a few hundred kilobytes. If the export becomes unwieldy in
+practice, the fix is either pruning older photos or a binary export format; neither is worth
+building before that happens.
 
-## 4. IndexedDB has no persistence guarantee
+## 4. Reminders only fire while the app is open
 
-`navigator.storage.persist()` is never requested and quota is never surfaced.
-iPadOS evicts IndexedDB for sites it considers inactive, and the failure mode is
-silent, total data loss. The JSON backup in Settings is the only mitigation, and
-it depends on the user remembering to run it.
+Timers are scheduled in a `useEffect`. This is honest for a PWA with no backend, and the
+Settings UI says so plainly, but it is not what most people expect from the word "reminder".
 
-Photos are downscaled to 1280px but never pruned, and the backup embeds them as
-base64 — roughly a third larger than the binary. A year of weekly photos makes
-for a large export.
+Fixing it properly requires a push service and therefore a server, which the specification
+rules out. Treat them as in-app nudges. The one reminder that genuinely matters — the
+monthly backup — belongs in the system calendar, and the
+[Backup Guide](BACKUP_GUIDE.md) says so.
 
-## 5. Reminders only fire while the app is open
+## 5. Exercise illustrations are procedural glyphs
 
-Timers are scheduled in a `useEffect`. This is honest for a PWA with no backend,
-and the UI says so, but it is not what most people expect from a reminder. Fixing
-it properly needs a push service, which the specification rules out.
+Each movement gets a generated stick-figure glyph rather than a photograph or a drawing, so
+the whole app installs and works offline with no image assets to fetch. They convey the
+shape of a movement and not much more; the written instructions and cues do the real work.
 
-## 6. Motion does not honour `prefers-reduced-motion`
+Replacing them with real illustrations is the single largest content investment available
+and should be made only if daily use shows the glyphs are actually insufficient — not on
+speculation.
 
-The CSS media query zeroes out CSS transitions, but Framer Motion animations —
-page transitions, sheets, the celebration burst — still run at full amplitude.
-Framer Motion has `useReducedMotion` for exactly this; it is not yet wired in.
-
-## 7. Three deliberate hook-dependency suppressions
+## 6. Three deliberate hook-dependency suppressions
 
 `ActiveWorkoutPage`, `useCssVars` and `PhotoStrip` each suppress
-`react-hooks/exhaustive-deps`. The one in `ActiveWorkoutPage` is the notable one:
-the effect that marks a set done when a hold expires depends only on
-`hold.isActive` but calls `toggleSet`, which closes over the session. It is
-correct because the effect runs on the render where the flag flips, but that is
-an unwritten invariant with no test guarding it.
+`react-hooks/exhaustive-deps`.
 
-## 8. Minor
+The one in `ActiveWorkoutPage` is the notable one: the effect that marks a set done when a
+hold expires depends only on `hold.isActive` but calls `toggleSet`, which closes over the
+session. It is correct because the effect runs on the render where the flag flips, but that
+is an unwritten invariant. `session.test.ts` covers the mutation it calls; it does not cover
+the timing that makes the suppression safe.
 
-- `achievements.seen` is written as `false` on unlock and never read. It was
-  intended for a "new unlock" indicator that has not been built.
-- The `quotes` table is seeded, backed up and restored, but the daily quote is
-  read from the static module. The `favourite` flag has no UI.
-- The `[date+habitId]` compound index on `habits` is declared but never queried.
-- `npm audit` reports two advisories that do not apply: a React Router RSC-mode
-  CSRF issue (this is a client-only SPA with no server actions) and a DoS in a
-  transitive build-time dependency of `vite-plugin-pwa`. Both need breaking major
-  bumps.
+## 7. Minor
+
+- **`npm audit` reports two advisories that do not apply here.** A React Router RSC-mode
+  CSRF issue — this is a client-only SPA with no server actions — and a DoS in a transitive
+  build-time dependency of `vite-plugin-pwa`. Both fixes require breaking major bumps.
+- **The daily quote has no favourite mechanism.** The `quotes` table that once backed one
+  was dropped in schema v2; quotes are read from the static module. Nothing is missing
+  functionally, but the idea was never finished.
+- **`workouts` holds one row by convention, not by constraint.** `startSession` clears the
+  table before writing, and the tests assert it, but the schema would happily store two.
+  `getActiveSession` defends against it by returning the newest rather than an arbitrary
+  row — a guard for something that should be impossible.
+
+---
+
+## Closed
+
+Resolved in the v1.0 Beta sprint. Kept here because the reasoning is worth not losing.
+
+**No tests → 128 tests.** This was the largest risk in the codebase for two phases running:
+every bug found in Phase 1 and Phase 2 was caught by driving a real browser, which is slower
+and less reliable than an assertion. The suite now covers the coach, streaks, progression,
+substitution, dates, trends, session mechanics, backup round-trips and the schema migration,
+and it caught four real bugs before anyone opened the app.
+
+**No database migration path → schema v2, migrated and tested.** The schema sat on
+`version(1)` with no upgrade function, so the first change to a stored record shape would
+have broken existing installs. There is now a v2 with a documented upgrade, a test that
+seeds the v1 shape and asserts the v2 result, a written procedure for adding v3 in
+[Database Schema](DATABASE_SCHEMA.md), and a doc comment in `db.ts` pointing at both.
+
+**No IndexedDB persistence guarantee → `storage.persist()` requested at launch.** iPadOS
+evicts IndexedDB for sites it considers inactive, and the failure mode is silent, total data
+loss. The grant is now requested on every launch and its state and usage are shown in
+Settings. It is not a guarantee — Safari can refuse — which is why the JSON backup still
+matters.
+
+**Motion did not honour `prefers-reduced-motion` → `MotionConfig reducedMotion="user"`.**
+The CSS media query zeroed CSS transitions, but Framer Motion animations — page transitions,
+sheets, the celebration burst — ran at full amplitude regardless.
+
+**Dead schema fields → removed in v2.** The `quotes` store (written, backed up and restored;
+never read), the `achievements.seen` flag (written on unlock, never read) and the
+`[date+habitId]` compound index (declared, never queried) are all gone. `tempo-push-up`,
+which duplicated `push-up`, was removed from the library too.

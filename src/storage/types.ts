@@ -18,6 +18,8 @@ export interface Settings {
   theme: ThemeMode
   units: Units
   equipment: Equipment[]
+  /** Standing height in centimetres. Only used to derive BMI. */
+  heightCm: number | null
   /** Day one of the twelve-month journey. */
   startDate: DateKey
   /** The furthest phase unlocked. Never advances without being asked. */
@@ -111,15 +113,48 @@ export interface WorkoutHistoryEntry {
   note: string
 }
 
+/**
+ * One row per day. Every field is optional — a weigh-in day and a tape-measure
+ * day are usually different days, and forcing both would mean neither happens.
+ *
+ * Girths are stored in centimetres and weight in kilograms regardless of the
+ * display unit, so switching units never rewrites history.
+ *
+ * BMI is deliberately absent: it is derived from weight and `settings.heightCm`
+ * at display time. Storing it would let it disagree with the weight beside it.
+ */
 export interface Measurement {
   date: DateKey
+
+  /* Composition — typically all four come off a smart scale at once. */
   weightKg: number | null
+  bodyFatPct: number | null
+  skeletalMusclePct: number | null
+  /** Visceral fat rating, as reported by the scale (roughly 1–59). */
+  visceralFat: number | null
+
+  /* Girths, centimetres. Left and right are separate: asymmetry is the point. */
+  neckCm: number | null
+  chestCm: number | null
   waistCm: number | null
+  hipsCm: number | null
+  armLeftCm: number | null
+  armRightCm: number | null
+  thighLeftCm: number | null
+  thighRightCm: number | null
+  calfLeftCm: number | null
+  calfRightCm: number | null
+
+  /* Performance tests. */
   pushupMax: number | null
   plankSeconds: number | null
+
   note: string
   updatedAt: number
 }
+
+/** Every numeric field on a measurement, for iterating generically. */
+export type MeasurementField = Exclude<keyof Measurement, 'date' | 'note' | 'updatedAt'>
 
 export interface HabitLog {
   /** `${date}:${habitId}` */
@@ -133,15 +168,6 @@ export interface HabitLog {
 export interface AchievementRecord {
   id: string
   unlockedAt: number
-  /** False until the unlock has been shown once. */
-  seen: boolean
-}
-
-export interface QuoteRecord {
-  id: string
-  text: string
-  author: string
-  favourite: boolean
 }
 
 export interface ProgressPhoto {

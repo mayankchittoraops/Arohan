@@ -1,7 +1,7 @@
 import { db, ensureSeeded } from './db'
 import type { ProgressPhoto } from './types'
 
-export const BACKUP_VERSION = 1
+export const BACKUP_VERSION = 2
 
 interface SerialisedPhoto extends Omit<ProgressPhoto, 'blob'> {
   /** `data:` URL — JSON cannot carry a Blob. */
@@ -20,7 +20,6 @@ export interface BackupFile {
     measurements: unknown[]
     habits: unknown[]
     achievements: unknown[]
-    quotes: unknown[]
     photos: SerialisedPhoto[]
   }
 }
@@ -51,7 +50,7 @@ export async function exportBackup(): Promise<BackupFile> {
     photos.map(async (photo) => ({ ...photo, blob: await blobToDataUrl(photo.blob) })),
   )
 
-  const [settings, daily, workouts, history, measurements, habits, achievements, quotes] =
+  const [settings, daily, workouts, history, measurements, habits, achievements] =
     await Promise.all([
       db.settings.toArray(),
       db.daily_health.toArray(),
@@ -60,7 +59,6 @@ export async function exportBackup(): Promise<BackupFile> {
       db.measurements.toArray(),
       db.habits.toArray(),
       db.achievements.toArray(),
-      db.quotes.toArray(),
     ])
 
   return {
@@ -75,7 +73,6 @@ export async function exportBackup(): Promise<BackupFile> {
       measurements,
       habits,
       achievements,
-      quotes,
       photos: serialisedPhotos,
     },
   }
@@ -143,7 +140,6 @@ export async function importBackup(raw: string): Promise<ImportResult> {
       db.measurements.bulkPut((data.measurements ?? []) as never[]),
       db.habits.bulkPut((data.habits ?? []) as never[]),
       db.achievements.bulkPut((data.achievements ?? []) as never[]),
-      db.quotes.bulkPut((data.quotes ?? []) as never[]),
       db.photos.bulkPut(photos),
     ])
   })

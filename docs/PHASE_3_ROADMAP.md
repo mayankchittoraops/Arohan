@@ -1,110 +1,96 @@
-# Phase 3 — Recommended Roadmap
+# Roadmap
 
-Phase 1 built the app. Phase 2 made it worth opening. Phase 3 should make it
-**trustworthy over a full year**, because that is the only thing left standing
-between the current state and the original goal.
+Phase 1 built the app. Phase 2 made it worth opening. The v1.0 Beta sprint made it
+**trustworthy over a full year** — which was the whole of what this roadmap called Sprint A,
+plus most of Sprint B.
 
-The ordering below is deliberate: the first two items are about not losing data
-or breaking working behaviour, and everything else is easier once they exist.
+**Version 1.0 Beta is feature complete.** Everything below the Delivered section is parked,
+and should stay parked until twelve months of daily use says otherwise. The correct next
+step is not on this page; it is to use the app.
 
-Nothing here adds cloud sync, a backend, authentication, AI, nutrition, social
-features or payments.
+Nothing here adds cloud sync, a backend, authentication, AI, nutrition, social features,
+Apple Watch integration or payments.
 
 ---
 
-## Sprint A — Safety net (highest priority)
+## Delivered in v1.0 Beta
 
-*Roughly 4–5 days.*
-
-### 1. Tests over the pure logic
-
-The single highest-value change available. No UI tests, no snapshots — just
-Vitest over the functions that decide things:
-
-| Target | Why it earns a test |
+| Item | Outcome |
 | --- | --- |
-| `coach()` | Ten ordered rules. Reordering two of them silently changes advice. |
-| `computeStreak` | Off-by-one at midnight, month and DST boundaries. |
-| `progressionFor` | Deload weeks are easy to break and hard to notice. |
-| `resolveSession` | Equipment substitution and duplicate suppression. |
-| `summarise` / `toHistoryEntry` | Every number the user sees on Progress. |
-| `lib/date` | Local date keys across month ends and DST. |
+| **Tests over the pure logic** | 128 tests across 9 files, gating CI before the build. Caught four real bugs before a browser saw them. |
+| **Database migration path** | Schema v2 with a real upgrade function, a test that seeds v1 and asserts v2, and a written procedure for v3 in [Database Schema](DATABASE_SCHEMA.md). |
+| **Storage durability** | `navigator.storage.persist()` requested at launch; grant state and usage shown in Settings. |
+| **Honour `prefers-reduced-motion`** | `MotionConfig reducedMotion="user"` at the root, covering every Framer Motion animation. |
+| **Full health tracking** | Sixteen metrics, derived BMI, trend directions with noise floors, asymmetry callouts. Went beyond what this page anticipated. |
 
-Gate CI on it, before the build step in `deploy.yml`.
-
-### 2. Database migration path
-
-Add `version(2)` with a real upgrade function, even if the change is trivial, so
-the pattern exists and is exercised by a test before it is needed under pressure.
-Document the convention in the technical report.
-
-### 3. Storage durability
-
-Request `navigator.storage.persist()` on first run. Surface usage and quota in
-Settings. Add a gentle reminder to export a backup when one has not been taken
-in a month. iPadOS eviction is silent and total; this is the difference between
-an inconvenience and losing a year.
+The one item from Sprint A not delivered: a **backup-overdue nudge** — a gentle reminder in
+Settings when no export has been taken in a month. It is genuinely useful and genuinely
+small. It was left out because it needs a stored `lastExportedAt`, and adding a schema
+column purely for a nudge, in the sprint whose point was reliability, was the wrong trade.
+It is the first candidate if a v3 migration happens for any other reason.
 
 ---
 
-## Sprint B — The year in use
+## Parked — worth doing if daily use asks for it
 
-*Roughly 3–4 days.*
+### Coaching informed by more history
 
-### 4. Honour `prefers-reduced-motion`
-
-Wire Framer Motion's `useReducedMotion` through the shared motion tokens so one
-change covers every animation. The CSS half is already done.
-
-### 5. Coaching, informed by more history
-
-The engine currently reads today plus the last session. With a few months of
-data it could reasonably also notice:
+The engine reads today plus the last session. With a few months of real data it could also
+notice:
 
 - a pattern between poor sleep and reported pain
 - which movements consistently precede a bad back day
-- when a phase has been comfortable for three straight weeks, and say so rather
-  than waiting for the calendar
+- when a phase has been comfortable for three straight weeks, and say so rather than
+  waiting for the calendar
 
-All still deterministic rules over stored data. No model.
+All still deterministic rules over stored data. **No model, ever.** The reason this is
+parked rather than built: rules inferred from imagined data tend to be wrong about real
+data. Three months of history is the input this needs.
 
-### 6. Weekly review
+### Weekly review screen
 
-A once-a-week screen: what was done, how the back trended, one thing to carry
-into next week. The data is all present; it needs a screen and a rule set.
+Once a week: what was done, how the back trended, one thing to carry into next week. The
+data is all present; it needs a screen and a rule set. Park it until it is clear whether the
+Progress → Overview tab already covers the need.
+
+### Replace the placeholder illustrations
+
+The stick-figure glyphs are honest placeholders. Options, cheapest first: refine the
+existing SVGs per movement rather than per category, or commission a small consistent set.
+Must stay inline SVG so the app installs with no image fetches.
+
+This is the single largest content investment available. Do not make it on speculation —
+make it if the glyphs turn out to be insufficient in practice.
+
+### Bundle work, driven by a real measurement
+
+Only after Lighthouse has been run on an actual iPad. If it is genuinely slow, the exercise
+library is the obvious split, at the cost of making `requireExercise` async across most
+screens and every test that uses it. **Do not do this speculatively.**
+
+### Photo management
+
+Nothing prunes photos, and the base64 export inflates them by about a third. If a year of
+weekly photos makes the backup unwieldy, the fix is either pruning older ones from the Body
+tab or a binary export format.
 
 ---
 
-## Sprint C — Craft
+## Withdrawn
 
-*Roughly 3 days.*
-
-### 7. Replace the placeholder illustrations
-
-The stick-figure glyphs are honest placeholders and the specification's
-"no placeholder assets" goal is not truly met. Options, cheapest first: refine
-the existing SVGs per movement rather than per category; or commission a small
-consistent set. Must stay inline SVG so the app installs with no image fetches.
-
-### 8. Bundle work, driven by a real measurement
-
-Only after Lighthouse has been run on an actual iPad. If it is genuinely slow,
-the exercise library is the obvious split, at the cost of making
-`requireExercise` async. Do not do this speculatively.
-
-### 9. Achievement polish
-
-Use the `seen` flag that is already stored: show new unlocks once, distinctly,
-rather than as an ordinary toast among others.
+**Achievement polish using the `seen` flag.** The flag was written on unlock and never read,
+so v2 deleted it rather than building on it. If a "new unlock" indicator is ever wanted, it
+should be designed first and stored second — the previous order is how the dead column
+happened.
 
 ---
 
 ## Explicitly not recommended
 
-- **Anything that needs a server.** The offline-first, no-account design is the
-  reason the app is trustworthy and fast. Reminders that fire while closed,
-  cross-device sync and shared progress all break it.
-- **A broader exercise library.** 84 movements is already more than a year of
-  the programme prescribes. More would be content for its own sake.
-- **Nutrition, weight prediction or body-composition estimates.** Out of scope
-  and outside what the stored data can honestly support.
+- **Anything that needs a server.** The offline-first, no-account design is the reason the
+  app is trustworthy and fast. Reminders that fire while closed, cross-device sync and
+  shared progress all break it.
+- **A broader exercise library.** 83 movements is already more than a year of the programme
+  prescribes. More would be content for its own sake.
+- **Nutrition, weight prediction or body-composition estimates.** Out of scope, and outside
+  what the stored data can honestly support.

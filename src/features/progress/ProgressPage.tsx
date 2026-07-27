@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Page, PageHeader, PageSkeleton } from '@/components/Page'
 import { Segmented } from '@/components/Fields'
 import { useJourney } from '@/hooks/useJourney'
@@ -20,6 +21,7 @@ const TABS: Array<{ value: Tab; label: string }> = [
 ]
 
 export function ProgressPage() {
+  const navigate = useNavigate()
   const [tab, setTab] = useState<Tab>('overview')
   const today = useToday()
   const settings = useSettings()
@@ -41,7 +43,14 @@ export function ProgressPage() {
       />
 
       {tab === 'overview' ? <OverviewTab stats={stats} today={today} /> : null}
-      {tab === 'body' ? <BodyTab today={today} units={settings.units} /> : null}
+      {tab === 'body' ? (
+        <BodyTab
+          today={today}
+          units={settings.units}
+          heightCm={settings.heightCm}
+          onOpenSettings={() => navigate('/settings')}
+        />
+      ) : null}
       {tab === 'history' ? <HistoryTab today={today} /> : null}
       {tab === 'journey' ? (
         <JourneyTab stats={stats} settings={settings} journeyDay={journey.day} />

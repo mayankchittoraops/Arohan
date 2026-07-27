@@ -121,7 +121,19 @@ export async function deleteHistoryEntry(id: string): Promise<void> {
 export const EMPTY_MEASUREMENT = (date: DateKey): Measurement => ({
   date,
   weightKg: null,
+  bodyFatPct: null,
+  skeletalMusclePct: null,
+  visceralFat: null,
+  neckCm: null,
+  chestCm: null,
   waistCm: null,
+  hipsCm: null,
+  armLeftCm: null,
+  armRightCm: null,
+  thighLeftCm: null,
+  thighRightCm: null,
+  calfLeftCm: null,
+  calfRightCm: null,
   pushupMax: null,
   plankSeconds: null,
   note: '',
@@ -151,7 +163,7 @@ export function allMeasurements(): Promise<Measurement[]> {
 export async function unlockAchievement(id: string): Promise<void> {
   const existing = await db.achievements.get(id)
   if (existing) return
-  await db.achievements.put({ id, unlockedAt: Date.now(), seen: false })
+  await db.achievements.put({ id, unlockedAt: Date.now() })
 }
 
 /* ---------------------------------------------------------------- photos */

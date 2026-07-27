@@ -1,27 +1,36 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
-import { Plus, Ruler, Timer, TrendingDown, Zap } from 'lucide-react'
+import { Plus, Ruler, Scale } from 'lucide-react'
 import { Button } from '@/components/Button'
 import { Card, SectionTitle } from '@/components/Card'
-import { LineChart } from '@/components/Chart'
 import { EmptyState } from '@/components/Feedback'
 import { Field, NumberInput, TextInput } from '@/components/Fields'
 import { BottomSheet } from '@/components/Overlay'
-import { StatCard } from '@/components/StatCard'
-import { formatShort, type DateKey } from '@/lib/date'
+import { BlockSkeleton } from '@/components/Page'
 import {
-  formatDuration,
-  formatLength,
-  formatWeight,
-  fromDisplayLength,
-  fromDisplayWeight,
-  roundTo,
-  toDisplayLength,
-  toDisplayWeight,
-} from '@/lib/format'
+  BMI_BAND_LABELS,
+  bmi,
+  bmiBand,
+  METRIC_GROUPS,
+  METRICS,
+  metricsIn,
+  type MetricDefinition,
+} from '@/data/metrics'
+import { cn } from '@/lib/cn'
+import { formatRelative, type DateKey } from '@/lib/date'
+import { fromDisplayLength, fromDisplayWeight, roundTo } from '@/lib/format'
 import { allMeasurements, getMeasurement, saveMeasurement } from '@/storage/repo'
+import { asymmetry, trendFor } from '@/storage/trends'
 import type { Measurement, Units } from '@/storage/types'
+import { formatValue, MetricRow, toDisplay, unitLabel } from './MetricRow'
 import { PhotoStrip } from './PhotoStrip'
+
+/** Converts an entered display value back into the stored metric unit. */
+function fromDisplay(value: number, metric: MetricDefinition, units: Units): number {
+  if (metric.kind === 'weight') return fromDisplayWeight(value, units)
+  if (metric.kind === 'length') return fromDisplayLength(value, units)
+  return value
+}
 
 function LogSheet({
   open,
@@ -35,6 +44,7 @@ function LogSheet({
   units: Units
 }) {
   const [draft, setDraft] = useState<Measurement | null>(null)
+  const [saving, setSaving] = useState(false)
 
   useEffect(() => {
     if (!open) return
@@ -47,19 +57,16 @@ function LogSheet({
     }
   }, [open, date])
 
-  const patch = (values: Partial<Measurement>) =>
-    setDraft((current) => (current ? { ...current, ...values } : current))
-
   const save = async () => {
     if (!draft) return
-    await saveMeasurement(date, {
-      weightKg: draft.weightKg,
-      waistCm: draft.waistCm,
-      pushupMax: draft.pushupMax,
-      plankSeconds: draft.plankSeconds,
-      note: draft.note,
-    })
-    onClose()
+    setSaving(true)
+    try {
+      const { date: _d, updatedAt: _u, ...patch } = draft
+      await saveMeasurement(date, patch)
+      onClose()
+    } finally {
+      setSaving(false)
+    }
   }
 
   return (
@@ -67,183 +74,205 @@ function LogSheet({
       open={open}
       onClose={onClose}
       title="Log measurements"
-      description="Weigh yourself at the same time of day — first thing works best."
+      description="Fill in only what you measured. Blanks stay blank — nothing is required."
       footer={
-        <Button full size="lg" onClick={() => void save()}>
-          Save
+        <Button full size="lg" disabled={saving} onClick={() => void save()}>
+          {saving ? 'Saving…' : 'Save'}
         </Button>
       }
     >
       {draft ? (
         <div className="space-y-6">
-          <Field label={`Weight (${units === 'metric' ? 'kg' : 'lb'})`}>
-            <NumberInput
-              value={draft.weightKg == null ? null : roundTo(toDisplayWeight(draft.weightKg, units), 1)}
-              onChange={(value) =>
-                patch({ weightKg: value == null ? null : fromDisplayWeight(value, units) })
-              }
-              step={0.1}
-              min={0}
-              max={400}
-              decimals={1}
-            />
-          </Field>
+          {METRIC_GROUPS.map((group) => (
+            <section key={group}>
+              <h3 className="mb-3 text-micro uppercase text-faint">{group}</h3>
+              <div className="space-y-4">
+                {metricsIn(group).map((metric) => {
+                  const stored = draft[metric.field]
+                  const shown =
+                    stored == null ? null : roundTo(toDisplay(stored, metric, units), metric.decimals)
 
-          <Field label={`Waist (${units === 'metric' ? 'cm' : 'in'})`}>
-            <NumberInput
-              value={draft.waistCm == null ? null : roundTo(toDisplayLength(draft.waistCm, units), 1)}
-              onChange={(value) =>
-                patch({ waistCm: value == null ? null : fromDisplayLength(value, units) })
-              }
-              step={0.5}
-              min={0}
-              max={250}
-              decimals={1}
-            />
-          </Field>
-
-          <Field label="Push-up max" hint="One all-out set, good form only.">
-            <NumberInput
-              value={draft.pushupMax}
-              onChange={(pushupMax) => patch({ pushupMax })}
-              step={1}
-              min={0}
-              max={200}
-            />
-          </Field>
-
-          <Field label="Plank hold (seconds)">
-            <NumberInput
-              value={draft.plankSeconds}
-              onChange={(plankSeconds) => patch({ plankSeconds })}
-              step={5}
-              min={0}
-              max={900}
-            />
-          </Field>
+                  return (
+                    <Field
+                      key={metric.field}
+                      label={`${metric.label}${unitLabel(metric, units) ? ` (${unitLabel(metric, units)})` : ''}`}
+                      hint={metric.hint}
+                    >
+                      <NumberInput
+                        value={shown}
+                        min={metric.min}
+                        max={metric.max}
+                        step={metric.step}
+                        decimals={metric.decimals}
+                        onChange={(value) =>
+                          setDraft((current) =>
+                            current
+                              ? {
+                                  ...current,
+                                  [metric.field]:
+                                    value == null ? null : fromDisplay(value, metric, units),
+                                }
+                              : current,
+                          )
+                        }
+                      />
+                    </Field>
+                  )
+                })}
+              </div>
+            </section>
+          ))}
 
           <Field label="Note">
             <TextInput
               value={draft.note}
-              onChange={(event) => patch({ note: event.target.value })}
-              placeholder="Optional"
+              onChange={(event) =>
+                setDraft((current) => (current ? { ...current, note: event.target.value } : current))
+              }
+              placeholder="Optional — time of day, how you felt"
             />
           </Field>
         </div>
       ) : (
-        <p className="py-8 text-center text-sm text-faint">Loading…</p>
+        <BlockSkeleton rows={2} />
       )}
     </BottomSheet>
   )
 }
 
-export function BodyTab({ today, units }: { today: DateKey; units: Units }) {
+/** Weight plus height, expressed as a band rather than a bare number. */
+function BmiCard({
+  weightKg,
+  heightCm,
+  onSetHeight,
+}: {
+  weightKg: number | null
+  heightCm: number | null
+  onSetHeight: () => void
+}) {
+  const value = bmi(weightKg, heightCm)
+
+  if (value == null) {
+    return (
+      <Card tone="sunken" className="mb-section">
+        <p className="text-label leading-relaxed text-muted">
+          {weightKg == null
+            ? 'Log a weight and set your height to see BMI.'
+            : 'Set your height in Settings and BMI appears here.'}
+        </p>
+        {weightKg != null ? (
+          <Button variant="secondary" className="mt-3" onClick={onSetHeight}>
+            Set height
+          </Button>
+        ) : null}
+      </Card>
+    )
+  }
+
+  const band = bmiBand(value)
+  const tone =
+    band === 'healthy' ? 'text-mint' : band === 'under' ? 'text-sky' : band === 'over' ? 'text-amber' : 'text-rose'
+
+  return (
+    <Card className="mb-section flex items-center justify-between gap-4">
+      <div>
+        <p className="text-micro uppercase text-faint">BMI</p>
+        {/* toFixed rather than roundTo: 26.0 must not render as 26. */}
+        <p className="mt-1 text-display tabular text-ink">{value.toFixed(1)}</p>
+      </div>
+      <p className={cn('text-right text-label font-semibold', tone)}>{BMI_BAND_LABELS[band]}</p>
+    </Card>
+  )
+}
+
+export function BodyTab({
+  today,
+  units,
+  heightCm,
+  onOpenSettings,
+}: {
+  today: DateKey
+  units: Units
+  heightCm: number | null
+  onOpenSettings: () => void
+}) {
   const [logging, setLogging] = useState(false)
   const measurements = useLiveQuery(() => allMeasurements(), [])
 
-  const rows = measurements ?? []
-  const withWeight = rows.filter((m) => m.weightKg != null)
-  const withWaist = rows.filter((m) => m.waistCm != null)
-  const latest = rows.at(-1)
-  const first = rows[0]
+  const trends = useMemo(
+    () => (measurements ? METRICS.map((m) => trendFor(m.field, measurements)) : []),
+    [measurements],
+  )
+  const byField = useMemo(() => new Map(trends.map((t) => [t.field, t])), [trends])
 
-  const weightDelta =
-    withWeight.length >= 2
-      ? (withWeight.at(-1)!.weightKg ?? 0) - (withWeight[0].weightKg ?? 0)
-      : null
+  if (!measurements) return <BlockSkeleton />
+
+  const logged = trends.filter((t) => t.count > 0)
+  const latestWeight = byField.get('weightKg')?.latest ?? null
+  const lastEntry = measurements.at(-1)
+
+  /* Left/right differences worth mentioning. */
+  const pairs: Array<[string, number | null]> = [
+    ['Arms', asymmetry(byField.get('armLeftCm')?.latest ?? null, byField.get('armRightCm')?.latest ?? null)],
+    ['Thighs', asymmetry(byField.get('thighLeftCm')?.latest ?? null, byField.get('thighRightCm')?.latest ?? null)],
+    ['Calves', asymmetry(byField.get('calfLeftCm')?.latest ?? null, byField.get('calfRightCm')?.latest ?? null)],
+  ]
+  const notable = pairs.filter(([, value]) => value != null && value >= 3)
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-section">
       <Button full size="lg" icon={<Plus className="h-5 w-5" />} onClick={() => setLogging(true)}>
-        Log today's numbers
+        Log measurements
       </Button>
 
-      {rows.length === 0 ? (
+      {logged.length === 0 ? (
         <EmptyState
           icon={<Ruler className="h-6 w-6" />}
           title="No measurements yet"
-          description="Log your weight and waist once a week. That cadence is frequent enough to see a trend and slow enough to ignore the noise."
+          description="Weigh in weekly and take the tape measure out monthly. That cadence is often enough to see a trend and rare enough to ignore the noise."
         />
       ) : (
         <>
-          <div className="grid grid-cols-2 gap-2">
-            <StatCard
-              label="Weight"
-              tone="accent"
-              value={formatWeight(latest?.weightKg, units).split(' ')[0]}
-              unit={units === 'metric' ? 'kg' : 'lb'}
-            />
-            <StatCard
-              label="Waist"
-              tone="indigo"
-              value={formatLength(latest?.waistCm, units).split(' ')[0]}
-              unit={units === 'metric' ? 'cm' : 'in'}
-            />
-            <StatCard
-              label="Push-up max"
-              tone="amber"
-              icon={<Zap className="h-3.5 w-3.5" />}
-              value={latest?.pushupMax ?? '—'}
-            />
-            <StatCard
-              label="Plank"
-              tone="sky"
-              icon={<Timer className="h-3.5 w-3.5" />}
-              value={latest?.plankSeconds ? formatDuration(latest.plankSeconds) : '—'}
-            />
-          </div>
+          <BmiCard weightKg={latestWeight} heightCm={heightCm} onSetHeight={onOpenSettings} />
 
-          {weightDelta != null ? (
-            <Card className="flex items-center gap-3">
-              <TrendingDown
-                className={weightDelta <= 0 ? 'h-5 w-5 text-mint' : 'h-5 w-5 rotate-180 text-amber'}
-              />
-              <p className="text-sm leading-relaxed text-muted">
-                {weightDelta <= 0 ? 'Down' : 'Up'}{' '}
-                <span className="font-semibold text-ink">
-                  {formatWeight(Math.abs(weightDelta), units)}
-                </span>{' '}
-                since {first ? formatShort(first.date) : 'the start'}.
+          {lastEntry ? (
+            <p className="-mt-2 px-1 text-caption text-faint">
+              Last logged {formatRelative(lastEntry.date, today)}
+              {lastEntry.note ? ` · ${lastEntry.note}` : ''}
+            </p>
+          ) : null}
+
+          {METRIC_GROUPS.map((group) => {
+            const rows = metricsIn(group).filter((m) => (byField.get(m.field)?.count ?? 0) > 0)
+            if (rows.length === 0) return null
+
+            return (
+              <div key={group}>
+                <SectionTitle>{group}</SectionTitle>
+                <Card className="overflow-hidden p-0">
+                  <ul>
+                    {rows.map((metric) => (
+                      <MetricRow
+                        key={metric.field}
+                        metric={metric}
+                        trend={byField.get(metric.field)!}
+                        units={units}
+                      />
+                    ))}
+                  </ul>
+                </Card>
+              </div>
+            )
+          })}
+
+          {notable.length > 0 ? (
+            <Card tone="sunken" className="flex items-start gap-3">
+              <Scale className="mt-0.5 h-4 w-4 shrink-0 text-amber" />
+              <p className="text-label leading-relaxed text-muted">
+                {notable.map(([name, value]) => `${name} differ by ${roundTo(value!, 1)}%`).join(', ')}.
+                Some difference is normal — single-sided work will even it out over time.
               </p>
             </Card>
-          ) : null}
-
-          {withWeight.length >= 2 ? (
-            <div>
-              <SectionTitle>Weight</SectionTitle>
-              <Card>
-                <LineChart
-                  labels={withWeight.map((m) => formatShort(m.date))}
-                  series={[
-                    {
-                      label: units === 'metric' ? 'kg' : 'lb',
-                      points: withWeight.map((m) => roundTo(toDisplayWeight(m.weightKg!, units), 1)),
-                      token: 'accent',
-                      fill: true,
-                    },
-                  ]}
-                />
-              </Card>
-            </div>
-          ) : null}
-
-          {withWaist.length >= 2 ? (
-            <div>
-              <SectionTitle>Waist</SectionTitle>
-              <Card>
-                <LineChart
-                  labels={withWaist.map((m) => formatShort(m.date))}
-                  series={[
-                    {
-                      label: units === 'metric' ? 'cm' : 'in',
-                      points: withWaist.map((m) => roundTo(toDisplayLength(m.waistCm!, units), 1)),
-                      token: 'teal',
-                      fill: true,
-                    },
-                  ]}
-                />
-              </Card>
-            </div>
           ) : null}
         </>
       )}
@@ -254,3 +283,5 @@ export function BodyTab({ today, units }: { today: DateKey; units: Units }) {
     </div>
   )
 }
+
+export { formatValue }
