@@ -1,62 +1,66 @@
 import { motion } from 'framer-motion'
 import { Plus, SkipForward } from 'lucide-react'
-import { formatDuration } from '@/lib/format'
+import { CircularTimer } from '@/components/CircularTimer'
+import { SPRING } from '@/lib/motion'
 
 /**
- * The rest bar. Sits above the navigation while a set is resting and stays out
- * of the way — one tap skips it, one tap adds fifteen seconds.
+ * The rest panel. Large enough to read from the mat at arm's length, and it
+ * keeps the set list above it reachable so a mistyped rep count can still be
+ * corrected while resting.
  */
 export function RestTimer({
   remaining,
   total,
+  nextLabel,
   onSkip,
   onAdd,
 }: {
   remaining: number
   total: number
+  /** What is coming up, so the next set can be set up during the rest. */
+  nextLabel?: string
   onSkip: () => void
   onAdd: () => void
 }) {
-  const progress = total > 0 ? 1 - remaining / total : 1
-
   return (
     <motion.div
-      initial={{ y: 80, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      exit={{ y: 80, opacity: 0 }}
-      transition={{ type: 'spring', damping: 28, stiffness: 340 }}
+      initial={{ y: '110%' }}
+      animate={{ y: 0 }}
+      exit={{ y: '110%' }}
+      transition={SPRING.panel}
       className="fixed inset-x-0 bottom-0 z-40 px-3 pb-3 pb-safe"
+      role="status"
+      aria-live="polite"
+      aria-label={`Resting, ${Math.ceil(remaining)} seconds remaining`}
     >
-      <div className="mx-auto max-w-lg overflow-hidden rounded-xl3 border border-line bg-raised/95 shadow-card backdrop-blur-xl">
-        <div className="h-1 w-full bg-sunken">
-          <div
-            className="h-full bg-accent transition-[width] duration-200 ease-linear"
-            style={{ width: `${Math.min(100, progress * 100)}%` }}
-          />
-        </div>
-        <div className="flex items-center gap-3 p-3 pl-5">
-          <div className="min-w-0 flex-1">
-            <p className="text-xs font-medium uppercase tracking-wider text-faint">Rest</p>
-            <p className="text-2xl font-semibold tabular tracking-tight text-ink">
-              {formatDuration(Math.ceil(remaining))}
+      <div className="mx-auto max-w-lg overflow-hidden rounded-xl3 border border-line bg-raised/95 shadow-lifted backdrop-blur-xl">
+        <div className="flex flex-col items-center px-5 pb-5 pt-6">
+          <CircularTimer remaining={remaining} total={total} label="Rest" size={168} />
+
+          {nextLabel ? (
+            <p className="mt-4 text-center text-label text-muted">
+              Next up · <span className="font-semibold text-ink">{nextLabel}</span>
             </p>
+          ) : null}
+
+          <div className="mt-5 flex w-full gap-3">
+            <button
+              type="button"
+              onClick={onAdd}
+              className="flex h-13 min-h-12 flex-1 items-center justify-center gap-1.5 rounded-2xl border border-line bg-surface text-label font-semibold text-muted transition-transform active:scale-95"
+            >
+              <Plus className="h-4 w-4" />
+              15 seconds
+            </button>
+            <button
+              type="button"
+              onClick={onSkip}
+              className="flex h-13 min-h-12 flex-1 items-center justify-center gap-1.5 rounded-2xl bg-accent text-label font-semibold text-accent-ink transition-transform active:scale-95"
+            >
+              <SkipForward className="h-4 w-4" />
+              Skip rest
+            </button>
           </div>
-          <button
-            type="button"
-            onClick={onAdd}
-            className="flex h-12 items-center gap-1 rounded-2xl border border-line bg-surface px-4 text-sm font-semibold text-muted active:scale-95"
-          >
-            <Plus className="h-4 w-4" />
-            15s
-          </button>
-          <button
-            type="button"
-            onClick={onSkip}
-            className="flex h-12 items-center gap-1.5 rounded-2xl bg-accent px-4 text-sm font-semibold text-accent-ink active:scale-95"
-          >
-            <SkipForward className="h-4 w-4" />
-            Skip
-          </button>
         </div>
       </div>
     </motion.div>

@@ -130,6 +130,11 @@ function encouragementFor(streak: number, journeyDay: number, trainedToday: bool
   return pool[journeyDay % pool.length]
 }
 
+/** The line shown on the celebration screen, in the same voice as the rest. */
+export function completionMessage(streak: number, journeyDay: number): string {
+  return encouragementFor(streak, journeyDay, true)
+}
+
 /* ------------------------------------------------------------------ rules */
 
 /**
