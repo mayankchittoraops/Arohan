@@ -1,5 +1,160 @@
 # Changelog
 
+## Version 1.0 Beta — Reliability and Health Tracking
+
+The final sprint before daily use. The goal was not more features; it was making the
+app reliable enough to open every morning for a year without thinking about it.
+User-facing highlights are in the [Release Notes](docs/RELEASE_NOTES.md); this is the
+engineering record.
+
+### A test suite, at last
+
+128 tests across 9 files, Vitest in a Node environment, running in about a second.
+This was the top item on the Phase 3 roadmap and the largest standing risk in the
+codebase: every bug across the first two phases was caught by driving a real browser,
+which is slower and less reliable than an assertion.
+
+| File | Tests | Covers |
+| --- | --- | --- |
+| `lib/date.test.ts` | 14 | Local keys, DST in both directions, leap days, ranges |
+| `data/coach.test.ts` | 20 | All ten rules, ordering, determinism, encouragement |
+| `data/program.test.ts` | 19 | Phases, templates, progression, substitution chains |
+| `data/mobility.test.ts` | 14 | Content, derived durations, sequencing, equipment |
+| `storage/stats.test.ts` | 17 | Streaks, personal bests, weekly summaries, pain runs |
+| `storage/session.test.ts` | 15 | Start, tick, advance, pause, resume, finish |
+| `storage/trends.test.ts` | 15 | Direction, noise floors, asymmetry |
+| `storage/migration.test.ts` | 3 | v1 → v2 upgrade; a fresh install landing on v2 |
+| `storage/backup.test.ts` | 11 | Export shape; export → reset → import round trip |
+
+Database tests run against `fake-indexeddb`, so the real schema class is exercised
+without a browser. `createTestDatabase(name)` gives each test an isolated instance of
+the production code rather than a copy of it.
+
+CI runs `npm test` before the build. `npm run check` runs type-check, lint and tests.
+
+**Four real bugs were caught by assertions rather than by a browser.** They are listed
+under Fixed below, each marked with the test that found it.
+
+### Schema v2 — full body composition
+
+The measurement table went from four fields to sixteen, which required the first
+migration in the project's life.
+
+```ts
+this.version(2)
+  .stores({ quotes: null, habits: 'id, date, habitId' })
+  .upgrade(async (tx) => { /* 12 columns + heightCm → null; drop seen */ })
+```
+
+| Change | Reason |
+| --- | --- |
+| 12 new `measurements` columns | Body fat, skeletal muscle, visceral fat, neck, chest, hips, and left/right arm, thigh and calf |
+| `settings.heightCm` | Needed to derive BMI |
+| `quotes` store dropped | Written, backed up and restored — never read. The daily quote has always come from the static module |
+| `[date+habitId]` index dropped | Never queried; the primary key already encodes the pair |
+| `achievements.seen` deleted | Written on unlock, never read |
+
+`version(1)` was left byte-for-byte as it shipped. Dexie replays versions in order on an
+existing database, so editing history changes what installed clients upgrade *from* — the
+class doc block in `db.ts` now says so, and points at the migration test.
+
+The upgrade uses `??=` throughout, so it is idempotent and replay-safe.
+
+### Body tracking
+
+- **`data/metrics.ts`** describes each metric once — field, label, group, kind, bounds,
+  step, decimals, direction, hint. The entry form, the trend list and the unit conversion
+  all read from it, so they cannot drift. It is typed against `MeasurementField`, so
+  adding a column without describing it fails the type check.
+- **`storage/trends.ts`** turns a column into a direction: latest, previous, first,
+  change, whether the movement is favourable, and the points for a sparkline. Per-kind
+  noise floors mean 0.1 kg is not reported as a trend.
+- **`components/Sparkline.tsx`** — about 70 lines of inline SVG. Chart.js never loads for
+  the Body screen.
+- **BMI** is derived at display time from the latest weight and `settings.heightCm`, and
+  shown as a band rather than a bare number. It is deliberately not a stored column: a
+  stored derived value is one that can disagree with the weight next to it.
+- **Asymmetry** — left and right are separate columns rather than one averaged number,
+  and a gap of 3% or more is surfaced with the context that some difference is normal.
+
+Storage stays metric regardless of the display unit, so switching to imperial never
+rewrites history.
+
+### Reliability
+
+- **`navigator.storage.persist()`** is requested at launch, and Settings shows the grant
+  state and usage estimate. Without it, iPadOS can evict the database silently — the
+  failure mode the JSON backup exists to survive.
+- **`MotionConfig reducedMotion="user"`** at the root. The CSS media query already zeroed
+  CSS transitions, but Framer Motion animations — page transitions, sheets, the
+  celebration burst — ran at full amplitude regardless.
+- **`ensureSeeded()` is now an in-flight guard**, not a permanent memoisation. See Fixed.
+
+### Fixed
+
+**Seeding could freeze the app after a restore.** `ensureSeeded()` cached its result
+forever. Importing a backup with no settings row meant nothing reseeded, and every screen
+sat on a skeleton indefinitely. It is now an in-flight-only guard that clears in
+`finally`. *Found by `backup.test.ts`.*
+
+**Mobility durations were wrong on six of eight routines**, every one overstated by two
+to three minutes — Morning claimed 8 and ran 5, Hamstrings claimed 9 and ran 6. The
+number was hand-written per routine and had drifted from the moves beneath it. The
+`minutes` field is gone; `routineMinutes(routine)` derives it from `estimateSeconds`, and
+a test guards the derivation. *Found by reviewing routines against their own content.*
+
+**Mobility ignored equipment.** Workouts resolved against what you own; routines were
+handed to the runner untouched, so someone without bands opening Shoulders was shown a
+band pass-through with no way to do it. New `resolveMoves()` runs routines through the
+same substitution chain minus progression — a stretch is not something you overload — and
+the detail screen says when something was swapped.
+
+**A gap in the substitution chain.** `FALLBACKS['db-floor-press']` pointed at
+`'push-up'`, skipping the band press and leaving `band-chest-press` unreachable for anyone
+with bands but no dumbbells. Now `'band-chest-press'`, restoring dumbbell → band →
+bodyweight. *Found by `program.test.ts`.*
+
+**Encouragement repeated too soon.** Three lines per streak band produced a visible cycle
+within a week. Now twelve lines per band across five bands, with tests asserting no
+consecutive repeat and at least ten distinct lines over thirty days. *Found by
+`coach.test.ts`.*
+
+**BMI rendered as "26" instead of "26.0"** — `roundTo` drops trailing zeros. Uses
+`toFixed(1)`, with a comment saying why. *Found during browser verification.*
+
+**`tempo-push-up` removed** — it duplicated `push-up` under a different name and was
+unreachable. The library is 83 movements with no redundancy; `PUSHUP_IDS` in `stats.ts`
+updated to match.
+
+### Verified
+
+The production build was driven in a real browser across six areas: **39 checks, all
+passing**, no console errors, no failed requests.
+
+A genuine v1 IndexedDB was seeded in the browser and the v2 build booted over it —
+upgrades, drops `quotes`, preserves legacy settings, weight, waist and history, backfills
+every new metric as null, renders. The workout engine showed no regressions: rest timer,
++15s, skip, set counter, resume after a reload, resume after closing the tab entirely,
+celebration, streak. Backup survived export → reset → import with measurements and
+history intact. The app boots offline, navigates offline, and resolves a cold deep link
+offline. No horizontal overflow at 375×667, 393×852, 834×1112 or 1194×834.
+
+Lighthouse desktop **100 / 100 / 100 / 100** on consecutive runs with 0 ms total blocking
+time; mobile **93 / 100 / 100 / 100**, measured in a CPU-contended container and worth
+re-checking on the real iPad.
+
+### Documentation
+
+Seven deliverables: this changelog entry, plus an updated
+[README](README.md), a final [Technical Report](docs/TECHNICAL_REPORT.md), an
+[Architecture](docs/ARCHITECTURE.md) document with five diagrams, a complete
+[Database Schema](docs/DATABASE_SCHEMA.md) covering every stored field and the procedure
+for adding v3, a [User Guide](docs/USER_GUIDE.md), a [Backup Guide](docs/BACKUP_GUIDE.md)
+and [Release Notes](docs/RELEASE_NOTES.md). [Known Issues](docs/KNOWN_ISSUES.md) was
+rewritten — five of its eight entries are now closed.
+
+---
+
 ## Phase 2 — Product Polish
 
 No new features. The app already worked end to end; this phase was about making
