@@ -3,7 +3,7 @@ import { Bell, Check, Download, RotateCcw, Upload } from 'lucide-react'
 import { Button } from '@/components/Button'
 import { Card, SectionTitle } from '@/components/Card'
 import { ConfirmDialog } from '@/components/Feedback'
-import { Field, Segmented, TextInput, Toggle } from '@/components/Fields'
+import { Field, NumberInput, Segmented, TextInput, Toggle } from '@/components/Fields'
 import { Page, PageHeader, PageSkeleton } from '@/components/Page'
 import { EQUIPMENT_LABELS, OPTIONAL_EQUIPMENT, PHASES } from '@/data/program'
 import { useJourney } from '@/hooks/useJourney'
@@ -17,6 +17,7 @@ import { useToast } from '@/hooks/useToast'
 import { useToday } from '@/hooks/useToday'
 import { cn } from '@/lib/cn'
 import { formatShort } from '@/lib/date'
+import { fromDisplayLength, roundTo, toDisplayLength } from '@/lib/format'
 import { BackupError, downloadBackup, exportBackup, importBackup } from '@/storage/backup'
 import { resetDatabase } from '@/storage/db'
 import type { Equipment } from '@/data/types'
@@ -119,6 +120,28 @@ export function SettingsPage() {
               { value: 'metric', label: 'kg · cm' },
               { value: 'imperial', label: 'lb · in' },
             ]}
+          />
+        </Field>
+
+        <Field
+          label={`Height (${settings.units === 'metric' ? 'cm' : 'in'})`}
+          hint="Only used to work out BMI from your weight."
+        >
+          <NumberInput
+            value={
+              settings.heightCm == null
+                ? null
+                : roundTo(toDisplayLength(settings.heightCm, settings.units), 1)
+            }
+            min={0}
+            max={260}
+            step={settings.units === 'metric' ? 1 : 0.5}
+            decimals={1}
+            onChange={(value) =>
+              void updateSettings({
+                heightCm: value == null ? null : fromDisplayLength(value, settings.units),
+              })
+            }
           />
         </Field>
       </Card>

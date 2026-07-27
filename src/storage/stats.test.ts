@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { activeDates, computeStreak, painFreeRun, perfectHabitDays, personalRecords } from './stats'
-import type { DailyHealth, HabitLog, Measurement, WorkoutHistoryEntry } from './types'
+import { EMPTY_MEASUREMENT } from './repo'
+import type { DailyHealth, HabitLog, WorkoutHistoryEntry } from './types'
 
 const entry = (date: string, extra: Partial<WorkoutHistoryEntry> = {}): WorkoutHistoryEntry => ({
   id: `w-${date}`,
@@ -138,17 +139,6 @@ describe('perfectHabitDays', () => {
 })
 
 describe('personalRecords', () => {
-  const measurement = (date: string, extra: Partial<Measurement> = {}): Measurement => ({
-    date,
-    weightKg: null,
-    waistCm: null,
-    pushupMax: null,
-    plankSeconds: null,
-    note: '',
-    updatedAt: 0,
-    ...extra,
-  })
-
   it('takes the best from logged sets and from manual tests', () => {
     const history = [
       entry('2026-07-20', {
@@ -176,7 +166,9 @@ describe('personalRecords', () => {
         ],
       }),
     ]
-    const records = personalRecords(history, [measurement('2026-07-21', { pushupMax: 18 })])
+    const records = personalRecords(history, [
+      { ...EMPTY_MEASUREMENT('2026-07-21'), pushupMax: 18 },
+    ])
     expect(records.pushups).toBe(18)
     expect(records.plankSeconds).toBe(50)
   })
