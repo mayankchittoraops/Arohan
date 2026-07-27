@@ -633,6 +633,28 @@ export function resolveSession(
   return { template, blocks, progression, journeyDay: day, phase, dropped }
 }
 
+/**
+ * Applies equipment substitution to a standalone list of moves.
+ *
+ * Mobility routines used to be handed to the session runner untouched, so a
+ * user without bands was shown the band pass-through in the Shoulders routine
+ * with no way to do it. They now resolve through the same chain as workouts,
+ * minus the progression — a stretch is not something you overload.
+ */
+export function resolveMoves(moves: PlannedExercise[], equipment: Equipment[]): PlannedExercise[] {
+  const included = new Set<string>()
+  const out: PlannedExercise[] = []
+
+  for (const planned of moves) {
+    const resolved = substitute(planned, equipment)
+    if (!resolved || included.has(resolved.exerciseId)) continue
+    included.add(resolved.exerciseId)
+    out.push(resolved)
+  }
+
+  return out
+}
+
 /** Total planned sets in the working portion of a session. */
 export function mainSetCount(blocks: PlannedExercise[]): number {
   return blocks.reduce((total, b) => total + (b.section === 'main' ? b.sets : 0), 0)

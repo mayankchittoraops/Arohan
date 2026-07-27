@@ -1,3 +1,4 @@
+import { estimateSeconds } from './program'
 import type { MobilityRoutine, MobilitySectionId, PlannedExercise, Section } from './types'
 
 function step(exerciseId: string, target: { reps: number } | { seconds: number }): PlannedExercise {
@@ -22,7 +23,6 @@ export const MOBILITY_ROUTINES: MobilityRoutine[] = [
     name: 'Morning',
     subtitle: 'Wake the body up',
     intent: 'Eight minutes to undo the night and start the day moving well.',
-    minutes: 8,
     accent: 'amber',
     glyph: 'breathe',
     moves: [
@@ -40,7 +40,6 @@ export const MOBILITY_ROUTINES: MobilityRoutine[] = [
     name: 'Office',
     subtitle: 'Between meetings',
     intent: 'Six minutes at your desk to reverse everything sitting does.',
-    minutes: 6,
     accent: 'sky',
     glyph: 'neck',
     moves: [
@@ -58,7 +57,6 @@ export const MOBILITY_ROUTINES: MobilityRoutine[] = [
     name: 'Evening',
     subtitle: 'Wind down',
     intent: 'Twelve slow minutes to lower the volume before sleep.',
-    minutes: 12,
     accent: 'violet',
     glyph: 'breathe',
     moves: [
@@ -76,7 +74,6 @@ export const MOBILITY_ROUTINES: MobilityRoutine[] = [
     name: 'Lower Back',
     subtitle: 'When it complains',
     intent: 'The routine to reach for on a bad back day — gentle, in this order.',
-    minutes: 12,
     accent: 'rose',
     glyph: 'stretch',
     moves: [
@@ -96,7 +93,6 @@ export const MOBILITY_ROUTINES: MobilityRoutine[] = [
     name: 'Shoulders',
     subtitle: 'Open the front, wake the back',
     intent: 'For shoulders that have been rounded forward all day.',
-    minutes: 8,
     accent: 'indigo',
     glyph: 'shoulder',
     moves: [
@@ -113,7 +109,6 @@ export const MOBILITY_ROUTINES: MobilityRoutine[] = [
     name: 'Neck',
     subtitle: 'Screen recovery',
     intent: 'Six minutes for the tension that gathers at the base of the skull.',
-    minutes: 6,
     accent: 'teal',
     glyph: 'neck',
     moves: [
@@ -129,7 +124,6 @@ export const MOBILITY_ROUTINES: MobilityRoutine[] = [
     name: 'Hips',
     subtitle: 'Open and stable',
     intent: 'Tight hips make the lower back do their job. This gives it back.',
-    minutes: 10,
     accent: 'mint',
     glyph: 'hip',
     moves: [
@@ -146,7 +140,6 @@ export const MOBILITY_ROUTINES: MobilityRoutine[] = [
     name: 'Hamstrings',
     subtitle: 'The whole back line',
     intent: 'Lengthen the hamstrings without ever rounding the lower back.',
-    minutes: 9,
     accent: 'amber',
     glyph: 'hamstring',
     moves: [
@@ -160,6 +153,17 @@ export const MOBILITY_ROUTINES: MobilityRoutine[] = [
 ]
 
 const byId = new Map(MOBILITY_ROUTINES.map((r) => [r.id, r]))
+
+/**
+ * How long a routine actually takes, computed from its moves.
+ *
+ * This used to be a hand-written number on each routine and had drifted by two
+ * to three minutes on six of the eight — every one of them overstated. Deriving
+ * it means the figure on screen cannot disagree with the content again.
+ */
+export function routineMinutes(routine: MobilityRoutine): number {
+  return Math.max(1, Math.round(estimateSeconds(routine.moves) / 60))
+}
 
 export function getRoutine(id: MobilitySectionId | string): MobilityRoutine | undefined {
   return byId.get(id as MobilitySectionId)

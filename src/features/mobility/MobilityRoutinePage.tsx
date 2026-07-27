@@ -4,8 +4,10 @@ import { Button } from '@/components/Button'
 import { Card, SectionTitle } from '@/components/Card'
 import { Page } from '@/components/Page'
 import { getRoutine } from '@/data/mobility'
+import { estimateSeconds, resolveMoves } from '@/data/program'
+import { useSettings } from '@/hooks/useSettings'
 import { useToday } from '@/hooks/useToday'
-import { pluralise } from '@/lib/format'
+import { formatMinutes, pluralise } from '@/lib/format'
 import { SessionPlan } from '../workout/SessionPlan'
 import { beginSession } from '../workout/start'
 
@@ -13,9 +15,14 @@ export function MobilityRoutinePage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const today = useToday()
+  const settings = useSettings()
   const routine = id ? getRoutine(id) : undefined
 
   if (!routine) return <Navigate to="/mobility" replace />
+
+  // Resolved against what you own, exactly as a workout is.
+  const moves = resolveMoves(routine.moves, settings?.equipment ?? [])
+  const dropped = routine.moves.length - moves.length
 
   const start = async () => {
     await beginSession({
@@ -25,7 +32,7 @@ export function MobilityRoutinePage() {
       templateName: routine.name,
       templateSubtitle: routine.subtitle,
       kind: 'mobility',
-      blocks: routine.moves,
+      blocks: moves,
     })
     navigate('/workout/active')
   }
@@ -55,11 +62,13 @@ export function MobilityRoutinePage() {
         <dl className="mt-4 grid grid-cols-2 gap-2 rounded-2xl bg-sunken p-4 text-center">
           <div>
             <dt className="text-xs text-faint">Time</dt>
-            <dd className="text-lg font-semibold tabular text-ink">{routine.minutes} min</dd>
+            <dd className="text-lg font-semibold tabular text-ink">
+              {formatMinutes(estimateSeconds(moves))}
+            </dd>
           </div>
           <div>
             <dt className="text-xs text-faint">Moves</dt>
-            <dd className="text-lg font-semibold tabular text-ink">{routine.moves.length}</dd>
+            <dd className="text-lg font-semibold tabular text-ink">{moves.length}</dd>
           </div>
         </dl>
         <Button
@@ -73,8 +82,15 @@ export function MobilityRoutinePage() {
         </Button>
       </Card>
 
-      <SectionTitle>{pluralise(routine.moves.length, 'movement')}</SectionTitle>
-      <SessionPlan blocks={routine.moves} />
+      {dropped > 0 ? (
+        <p className="mb-3 rounded-2xl bg-amber/10 px-4 py-3 text-label leading-relaxed text-amber">
+          {pluralise(dropped, 'stretch', 'stretches')} needing kit you have not ticked in Settings
+          {dropped === 1 ? ' was' : ' were'} swapped or left out.
+        </p>
+      ) : null}
+
+      <SectionTitle>{pluralise(moves.length, 'movement')}</SectionTitle>
+      <SessionPlan blocks={moves} />
     </Page>
   )
 }

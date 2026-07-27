@@ -3,7 +3,7 @@ import { ChevronRight, Clock } from 'lucide-react'
 import { Card } from '@/components/Card'
 import { ExerciseGlyph } from '@/components/ExerciseGlyph'
 import { Page, PageHeader } from '@/components/Page'
-import { MOBILITY_ROUTINES } from '@/data/mobility'
+import { MOBILITY_ROUTINES, routineMinutes } from '@/data/mobility'
 import { MOBILITY_CATEGORIES } from '@/data/types'
 import { cn } from '@/lib/cn'
 
@@ -70,7 +70,7 @@ export function MobilityPage() {
                         <p className="truncate text-label text-muted">{routine.subtitle}</p>
                         <p className="mt-1 flex items-center gap-1 text-caption tabular text-faint">
                           <Clock className="h-3 w-3" />
-                          {routine.minutes} min · {routine.moves.length} stretches
+                          {routineMinutes(routine)} min · {routine.moves.length} stretches
                         </p>
                       </div>
                       <ChevronRight className="h-5 w-5 shrink-0 text-faint" />
