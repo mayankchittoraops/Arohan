@@ -2,7 +2,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import type { ReactNode } from 'react'
 import { cn } from '@/lib/cn'
 import { Button } from './Button'
-import { Sheet } from './Sheet'
+import { Modal } from './Overlay'
 import { useToast } from '@/hooks/useToast'
 
 export function EmptyState({
@@ -52,7 +52,7 @@ export function ConfirmDialog({
   destructive?: boolean
 }) {
   return (
-    <Sheet
+    <Modal
       open={open}
       onClose={onCancel}
       title={title}
@@ -68,7 +68,7 @@ export function ConfirmDialog({
       }
     >
       <p className="text-[15px] leading-relaxed text-muted">{description}</p>
-    </Sheet>
+    </Modal>
   )
 }
 

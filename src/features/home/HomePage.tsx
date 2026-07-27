@@ -16,7 +16,7 @@ import { Button } from '@/components/Button'
 import { Card, SectionTitle } from '@/components/Card'
 import { Page, PageHeader, PageSkeleton } from '@/components/Page'
 import { ProgressRing } from '@/components/ProgressRing'
-import { StatTile } from '@/components/StatTile'
+import { StatCard } from '@/components/StatCard'
 import { estimateSeconds } from '@/data/program'
 import { quoteForDate } from '@/data/quotes'
 import { useAchievementWatcher } from '@/hooks/useAchievementWatcher'
@@ -224,7 +224,7 @@ export function HomePage() {
         Today
       </SectionTitle>
       <div className="mb-5 grid grid-cols-2 gap-2 sm:grid-cols-4">
-        <StatTile
+        <StatCard
           label="Sleep"
           tone="violet"
           icon={<Moon className="h-3.5 w-3.5" />}
@@ -232,14 +232,14 @@ export function HomePage() {
           unit={daily?.sleepHours != null ? 'hrs' : undefined}
           onClick={() => setCheckingIn(true)}
         />
-        <StatTile
+        <StatCard
           label="Steps"
           tone="mint"
           icon={<Footprints className="h-3.5 w-3.5" />}
           value={daily?.steps?.toLocaleString() ?? '—'}
           onClick={() => setCheckingIn(true)}
         />
-        <StatTile
+        <StatCard
           label="Energy"
           tone="amber"
           icon={<BatteryMedium className="h-3.5 w-3.5" />}
@@ -247,7 +247,7 @@ export function HomePage() {
           unit={daily?.energy != null ? '/ 5' : undefined}
           onClick={() => setCheckingIn(true)}
         />
-        <StatTile
+        <StatCard
           label="Pain"
           tone="rose"
           icon={<HeartPulse className="h-3.5 w-3.5" />}

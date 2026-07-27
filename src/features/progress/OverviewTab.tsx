@@ -3,7 +3,7 @@ import { Clock, Dumbbell, Flame, HeartPulse, Timer, Zap } from 'lucide-react'
 import { BarChart, LineChart } from '@/components/Chart'
 import { Card, SectionTitle } from '@/components/Card'
 import { EmptyState } from '@/components/Feedback'
-import { StatTile } from '@/components/StatTile'
+import { StatCard } from '@/components/StatCard'
 import { addDays, formatShort, lastNDays, startOfWeek, type DateKey } from '@/lib/date'
 import { formatDuration } from '@/lib/format'
 import { db } from '@/storage/db'
@@ -58,26 +58,26 @@ export function OverviewTab({ stats, today }: { stats: JourneyStats | undefined;
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-        <StatTile
+        <StatCard
           label="Workouts"
           tone="accent"
           icon={<Dumbbell className="h-3.5 w-3.5" />}
           value={achievement.totalWorkouts}
         />
-        <StatTile
+        <StatCard
           label="Mobility"
           tone="teal"
           icon={<Zap className="h-3.5 w-3.5" />}
           value={achievement.totalMobilitySessions}
         />
-        <StatTile
+        <StatCard
           label="Streak"
           tone="rose"
           icon={<Flame className="h-3.5 w-3.5" />}
           value={stats.streak.current}
           unit="days"
         />
-        <StatTile
+        <StatCard
           label="Time trained"
           tone="indigo"
           icon={<Clock className="h-3.5 w-3.5" />}
@@ -88,13 +88,13 @@ export function OverviewTab({ stats, today }: { stats: JourneyStats | undefined;
           }
           unit={achievement.totalMinutes < 60 ? 'min' : 'hrs'}
         />
-        <StatTile
+        <StatCard
           label="Best push-ups"
           tone="amber"
           icon={<Zap className="h-3.5 w-3.5" />}
           value={achievement.bestPushups || '—'}
         />
-        <StatTile
+        <StatCard
           label="Best plank"
           tone="sky"
           icon={<Timer className="h-3.5 w-3.5" />}

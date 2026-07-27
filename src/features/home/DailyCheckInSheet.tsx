@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Button } from '@/components/Button'
 import { Field, NumberInput, ScalePicker, TextInput } from '@/components/Fields'
-import { Sheet } from '@/components/Sheet'
+import { BottomSheet } from '@/components/Overlay'
 import { getDaily, saveDaily } from '@/storage/repo'
 import type { DailyHealth } from '@/storage/types'
 import type { DateKey } from '@/lib/date'
@@ -49,7 +49,7 @@ export function DailyCheckInSheet({
   }
 
   return (
-    <Sheet
+    <BottomSheet
       open={open}
       onClose={onClose}
       title="Daily check-in"
@@ -122,6 +122,6 @@ export function DailyCheckInSheet({
       ) : (
         <p className="py-8 text-center text-sm text-faint">Loading…</p>
       )}
-    </Sheet>
+    </BottomSheet>
   )
 }

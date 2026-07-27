@@ -6,8 +6,8 @@ import { Card, SectionTitle } from '@/components/Card'
 import { LineChart } from '@/components/Chart'
 import { EmptyState } from '@/components/Feedback'
 import { Field, NumberInput, TextInput } from '@/components/Fields'
-import { Sheet } from '@/components/Sheet'
-import { StatTile } from '@/components/StatTile'
+import { BottomSheet } from '@/components/Overlay'
+import { StatCard } from '@/components/StatCard'
 import { formatShort, type DateKey } from '@/lib/date'
 import {
   formatDuration,
@@ -63,7 +63,7 @@ function LogSheet({
   }
 
   return (
-    <Sheet
+    <BottomSheet
       open={open}
       onClose={onClose}
       title="Log measurements"
@@ -133,7 +133,7 @@ function LogSheet({
       ) : (
         <p className="py-8 text-center text-sm text-faint">Loading…</p>
       )}
-    </Sheet>
+    </BottomSheet>
   )
 }
 
@@ -167,25 +167,25 @@ export function BodyTab({ today, units }: { today: DateKey; units: Units }) {
       ) : (
         <>
           <div className="grid grid-cols-2 gap-2">
-            <StatTile
+            <StatCard
               label="Weight"
               tone="accent"
               value={formatWeight(latest?.weightKg, units).split(' ')[0]}
               unit={units === 'metric' ? 'kg' : 'lb'}
             />
-            <StatTile
+            <StatCard
               label="Waist"
               tone="indigo"
               value={formatLength(latest?.waistCm, units).split(' ')[0]}
               unit={units === 'metric' ? 'cm' : 'in'}
             />
-            <StatTile
+            <StatCard
               label="Push-up max"
               tone="amber"
               icon={<Zap className="h-3.5 w-3.5" />}
               value={latest?.pushupMax ?? '—'}
             />
-            <StatTile
+            <StatCard
               label="Plank"
               tone="sky"
               icon={<Timer className="h-3.5 w-3.5" />}

@@ -15,7 +15,7 @@ const TONES = {
 
 export type Tone = keyof typeof TONES
 
-export function StatTile({
+export function StatCard({
   label,
   value,
   unit,
