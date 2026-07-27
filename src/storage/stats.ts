@@ -114,6 +114,21 @@ function loss(values: Array<number | null | undefined>): number {
   return Math.max(0, numbers[0] - numbers[numbers.length - 1])
 }
 
+export interface LastSession {
+  date: DateKey
+  kind: string
+  rpe: number | null
+}
+
+/** The most recently finished session, by completion time. */
+export function lastSessionOf(history: WorkoutHistoryEntry[]): LastSession | null {
+  let latest: WorkoutHistoryEntry | null = null
+  for (const entry of history) {
+    if (!latest || entry.finishedAt > latest.finishedAt) latest = entry
+  }
+  return latest ? { date: latest.date, kind: latest.kind, rpe: latest.rpe } : null
+}
+
 export interface StatsInput {
   history: WorkoutHistoryEntry[]
   habits: HabitLog[]

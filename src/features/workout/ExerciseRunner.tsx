@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { ChevronDown, Info, Repeat2, SkipForward } from 'lucide-react'
-import { ExerciseGlyph } from '@/components/ExerciseGlyph'
+import { DifficultyBadge, ExerciseCard } from '@/components/ExerciseCard'
 import { cn } from '@/lib/cn'
+import { ADVANCE_VARIANTS, COLLAPSE_VARIANTS, TRANSITION } from '@/lib/motion'
 import { requireExercise } from '@/data/exercises'
 import type { ExerciseLog, SetLog } from '@/storage/types'
 import { SetRow } from './SetRow'
@@ -26,6 +27,7 @@ export function ExerciseRunner({
   onStopHold,
   onNote,
   onSkip,
+  back = false,
 }: {
   log: ExerciseLog
   index: number
@@ -39,6 +41,8 @@ export function ExerciseRunner({
   onStopHold: () => void
   onNote: (note: string) => void
   onSkip: () => void
+  /** True when this card arrived by going backwards, so it slides the other way. */
+  back?: boolean
 }) {
   const [showHow, setShowHow] = useState(false)
   const exercise = requireExercise(log.exerciseId)
@@ -52,36 +56,30 @@ export function ExerciseRunner({
   return (
     <motion.section
       key={log.exerciseId + index}
-      initial={{ opacity: 0, x: 24 }}
-      animate={{ opacity: 1, x: 0 }}
-      exit={{ opacity: 0, x: -24 }}
-      transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+      custom={back}
+      variants={ADVANCE_VARIANTS}
+      initial="initial"
+      animate="animate"
+      exit="exit"
+      transition={TRANSITION.base}
       className={cn('space-y-4', log.skipped && 'opacity-50')}
     >
-      <div className="rounded-xl3 border border-line bg-surface p-5 shadow-card">
-        <div className="flex items-start gap-4">
-          <ExerciseGlyph glyph={exercise.glyph} className="h-20 w-20" />
-          <div className="min-w-0 flex-1">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.09em] text-faint">
-              {SECTION_LABEL[log.section]} · {index + 1} of {total}
-            </p>
-            <h2 className="mt-1 text-xl font-bold leading-tight tracking-tight text-ink">
-              {exercise.name}
-            </h2>
-            <p className="mt-1 text-sm leading-snug text-muted">{exercise.summary}</p>
-          </div>
-        </div>
+      <p className="px-1 text-micro uppercase text-faint">
+        {SECTION_LABEL[log.section]} · {index + 1} of {total}
+      </p>
 
+      <ExerciseCard exercise={exercise} variant="hero">
         <div className="mt-4 flex flex-wrap items-center gap-2">
-          <span className="rounded-full bg-accent-soft px-3 py-1.5 text-xs font-semibold text-accent tabular">
+          <span className="rounded-full bg-accent-soft px-3 py-1.5 text-label tabular font-semibold text-accent">
             {target}
             {perSide ? ' each side' : ''}
           </span>
-          <span className="rounded-full bg-sunken px-3 py-1.5 text-xs font-medium text-muted tabular">
+          <span className="rounded-full bg-sunken px-3 py-1.5 text-label tabular font-medium text-muted">
             {log.restSeconds}s rest
           </span>
+          <DifficultyBadge difficulty={exercise.difficulty} />
           {log.coachNote ? (
-            <span className="rounded-full bg-amber/15 px-3 py-1.5 text-xs font-medium text-amber">
+            <span className="rounded-full bg-amber/15 px-3 py-1.5 text-label font-medium text-amber">
               {log.coachNote}
             </span>
           ) : null}
@@ -105,10 +103,11 @@ export function ExerciseRunner({
         <AnimatePresence initial={false}>
           {showHow ? (
             <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: 'auto', opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+              variants={COLLAPSE_VARIANTS}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+              transition={TRANSITION.base}
               className="overflow-hidden"
             >
               <ol className="mt-4 space-y-2.5">
@@ -154,7 +153,7 @@ export function ExerciseRunner({
             </motion.div>
           ) : null}
         </AnimatePresence>
-      </div>
+      </ExerciseCard>
 
       <div className="space-y-2">
         {log.sets.map((set, setIndex) => (

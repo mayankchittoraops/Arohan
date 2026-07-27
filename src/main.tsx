@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 import { registerSW } from 'virtual:pwa-register'
 import { App } from './App'
+import { ErrorBoundary } from './components/ErrorBoundary'
 import { ToastProvider } from './hooks/useToast'
 import { ensureSeeded } from './storage/db'
 import './index.css'
@@ -14,10 +15,12 @@ registerSW({ immediate: true })
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <BrowserRouter basename={import.meta.env.BASE_URL}>
-      <ToastProvider>
-        <App />
-      </ToastProvider>
-    </BrowserRouter>
+    <ErrorBoundary>
+      <BrowserRouter basename={import.meta.env.BASE_URL}>
+        <ToastProvider>
+          <App />
+        </ToastProvider>
+      </BrowserRouter>
+    </ErrorBoundary>
   </StrictMode>,
 )

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { AnimatePresence, motion } from 'framer-motion'
 import { ChevronDown, History, Trash2 } from 'lucide-react'
+import { BlockSkeleton } from '@/components/Page'
 import { Card } from '@/components/Card'
 import { ConfirmDialog, EmptyState } from '@/components/Feedback'
 import { requireExercise } from '@/data/exercises'
@@ -82,7 +83,7 @@ export function HistoryTab({ today }: { today: DateKey }) {
     return all.toSorted((a, b) => b.finishedAt - a.finishedAt)
   }, [])
 
-  if (!entries) return null
+  if (!entries) return <BlockSkeleton rows={4} />
 
   if (entries.length === 0) {
     return (

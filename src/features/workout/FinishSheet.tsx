@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Button } from '@/components/Button'
 import { Field, ScalePicker, TextInput } from '@/components/Fields'
-import { Sheet } from '@/components/Sheet'
+import { BottomSheet } from '@/components/Overlay'
 import { formatMinutes } from '@/lib/format'
 import type { SessionSummary } from '@/storage/session'
 
@@ -33,7 +33,7 @@ export function FinishSheet({
   const skipped = summary.plannedSets - summary.completedSets
 
   return (
-    <Sheet
+    <BottomSheet
       open={open}
       onClose={onClose}
       title="Finish session"
@@ -102,6 +102,6 @@ export function FinishSheet({
           />
         </Field>
       </div>
-    </Sheet>
+    </BottomSheet>
   )
 }

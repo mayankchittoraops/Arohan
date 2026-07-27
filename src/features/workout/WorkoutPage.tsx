@@ -4,7 +4,7 @@ import { CalendarDays, Moon, Play, Repeat, TriangleAlert } from 'lucide-react'
 import { Button } from '@/components/Button'
 import { Card, SectionTitle } from '@/components/Card'
 import { Page, PageHeader, PageSkeleton } from '@/components/Page'
-import { Sheet } from '@/components/Sheet'
+import { BottomSheet } from '@/components/Overlay'
 import { ALL_TEMPLATES, estimateSeconds, mainSetCount, resolveSession } from '@/data/program'
 import { useSession } from '@/hooks/useJourney'
 import { useSettings } from '@/hooks/useSettings'
@@ -160,7 +160,7 @@ export function WorkoutPage() {
         </>
       )}
 
-      <Sheet
+      <BottomSheet
         open={picking}
         onClose={() => setPicking(false)}
         title="Choose a session"
@@ -211,7 +211,7 @@ export function WorkoutPage() {
             Back to today's plan
           </Button>
         ) : null}
-      </Sheet>
+      </BottomSheet>
     </Page>
   )
 }

@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Check } from 'lucide-react'
 import { Button } from '@/components/Button'
 import { Field, Segmented, TextInput } from '@/components/Fields'
-import { Sheet } from '@/components/Sheet'
+import { BottomSheet } from '@/components/Overlay'
 import { EQUIPMENT_LABELS, OPTIONAL_EQUIPMENT } from '@/data/program'
 import { useUpdateSettings } from '@/hooks/useSettings'
 import { cn } from '@/lib/cn'
@@ -24,7 +24,7 @@ export function OnboardingSheet({ settings }: { settings: Settings }) {
     )
 
   return (
-    <Sheet
+    <BottomSheet
       open
       onClose={() => void updateSettings({ onboarded: true })}
       title="Welcome to Arohan"
@@ -97,6 +97,6 @@ export function OnboardingSheet({ settings }: { settings: Settings }) {
           </div>
         </Field>
       </div>
-    </Sheet>
+    </BottomSheet>
   )
 }

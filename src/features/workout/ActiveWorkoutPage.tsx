@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { AnimatePresence } from 'framer-motion'
 import { ChevronLeft, ChevronRight, Pause, Play, X } from 'lucide-react'
@@ -9,26 +9,50 @@ import { requireExercise } from '@/data/exercises'
 import { useCountdown, useTicker } from '@/hooks/useTimer'
 import { useFeedback } from '@/hooks/useFeedback'
 import { useSettings } from '@/hooks/useSettings'
-import { useToast } from '@/hooks/useToast'
+import { useStats } from '@/hooks/useStats'
+import { useToday } from '@/hooks/useToday'
 import { useWakeLock } from '@/hooks/useWakeLock'
 import { formatDuration } from '@/lib/format'
 import { discardActiveSession, finishSession, saveDaily, setHabit } from '@/storage/repo'
 import { elapsedOf, pauseSession, resumeSession, summarise, toHistoryEntry } from '@/storage/session'
+import { requireExercise as lookupExercise } from '@/data/exercises'
+import { completionMessage } from '@/data/coach'
+import { journeyDay } from '@/data/program'
 import { ExerciseRunner } from './ExerciseRunner'
 import { FinishSheet, type FinishValues } from './FinishSheet'
 import { RestTimer } from './RestTimer'
+import { SessionComplete } from './SessionComplete'
 import { useActiveSession } from './useActiveSession'
+
+interface Completion {
+  templateName: string
+  durationSeconds: number
+  completedSets: number
+  plannedSets: number
+  totalReps: number
+}
 
 export function ActiveWorkoutPage() {
   const navigate = useNavigate()
   const settings = useSettings()
-  const { show } = useToast()
+  const today = useToday()
+  const stats = useStats(settings, today)
   const { session, loading, mutate, updateLog, updateSet } = useActiveSession()
 
   const [holdingSet, setHoldingSet] = useState<number | null>(null)
   const [confirmQuit, setConfirmQuit] = useState(false)
   const [finishing, setFinishing] = useState(false)
   const [saving, setSaving] = useState(false)
+  /** Which way the last navigation went, so the card slides the right way. */
+  const [goingBack, setGoingBack] = useState(false)
+  const [completed, setCompleted] = useState<Completion | null>(null)
+  /**
+   * Set synchronously the moment finishing starts. `finishSession` clears the
+   * session row, which makes the live query emit undefined several awaits
+   * before `completed` is set — without this the redirect below would fire in
+   * that gap and skip straight past the celebration.
+   */
+  const finishingRef = useRef(false)
 
   const cue = useFeedback({
     sound: settings?.soundEnabled ?? true,
@@ -52,8 +76,10 @@ export function ActiveWorkoutPage() {
 
   // A session that was finished or discarded in another tab should not strand us.
   useEffect(() => {
-    if (!loading && !session) navigate('/workout', { replace: true })
-  }, [loading, session, navigate])
+    if (!loading && !session && !completed && !finishingRef.current) {
+      navigate('/workout', { replace: true })
+    }
+  }, [loading, session, completed, navigate])
 
   const startRest = useCallback(
     (seconds: number) => {
@@ -67,6 +93,7 @@ export function ActiveWorkoutPage() {
 
   const goTo = useCallback(
     (next: number) => {
+      setGoingBack(next < (session?.currentIndex ?? 0))
       void mutate((current) => ({
         ...current,
         currentIndex: Math.min(Math.max(0, next), current.logs.length - 1),
@@ -74,7 +101,7 @@ export function ActiveWorkoutPage() {
       hold.stop()
       setHoldingSet(null)
     },
-    [mutate, hold],
+    [mutate, hold, session?.currentIndex],
   )
 
   const toggleSet = useCallback(
@@ -87,6 +114,7 @@ export function ActiveWorkoutPage() {
       // Moving on automatically is part of the same write, so the tick and the
       // index change cannot overwrite one another.
       const advance = !wasDone && isLastSet && !isLastExercise
+      if (advance) setGoingBack(false)
 
       void mutate((current) => ({
         ...current,
@@ -137,19 +165,29 @@ export function ActiveWorkoutPage() {
   const handleFinish = useCallback(
     async (values: FinishValues) => {
       if (!session) return
+      finishingRef.current = true
       setSaving(true)
       try {
         const entry = toHistoryEntry(pauseSession(session), values)
         await finishSession(entry)
         await setHabit(session.date, session.source === 'mobility' ? 'mobility' : 'workout', true)
         if (values.painAfter != null) await saveDaily(session.date, { pain: values.painAfter })
-        show('Session saved. Well done.', 'success')
-        navigate('/', { replace: true })
+        setFinishing(false)
+        setCompleted({
+          templateName: entry.templateName,
+          durationSeconds: entry.durationSeconds,
+          completedSets: entry.completedSets,
+          plannedSets: entry.plannedSets,
+          totalReps: entry.totalReps,
+        })
+      } catch (error) {
+        finishingRef.current = false
+        throw error
       } finally {
         setSaving(false)
       }
     },
-    [session, navigate, show],
+    [session],
   )
 
   const discard = useCallback(async () => {
@@ -157,6 +195,20 @@ export function ActiveWorkoutPage() {
     setConfirmQuit(false)
     navigate('/workout', { replace: true })
   }, [navigate])
+
+  if (completed) {
+    return (
+      <SessionComplete
+        {...completed}
+        streak={stats?.streak.current ?? 0}
+        message={completionMessage(
+          stats?.streak.current ?? 0,
+          settings ? journeyDay(settings.startDate, today) : 1,
+        )}
+        onDone={() => navigate('/', { replace: true })}
+      />
+    )
+  }
 
   if (!session || !log || !summary) {
     return (
@@ -167,6 +219,8 @@ export function ActiveWorkoutPage() {
   }
 
   const exercise = requireExercise(log.exerciseId)
+  const nextLog = session.logs[index + 1]
+  const nextUp = nextLog ? lookupExercise(nextLog.exerciseId).name : undefined
   const showWeight = Boolean(exercise.loadable) && (settings?.equipment.includes('dumbbell') ?? false)
 
   return (
@@ -211,6 +265,7 @@ export function ActiveWorkoutPage() {
           onSkip={() =>
             void updateLog(index, (current) => ({ ...current, skipped: !current.skipped }))
           }
+          back={goingBack}
         />
       </AnimatePresence>
 
@@ -254,6 +309,7 @@ export function ActiveWorkoutPage() {
           <RestTimer
             remaining={rest.remaining}
             total={rest.total}
+            nextLabel={nextUp}
             onSkip={rest.stop}
             onAdd={() => rest.adjust(15)}
           />

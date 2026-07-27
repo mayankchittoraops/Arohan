@@ -1,17 +1,29 @@
 import { useLiveQuery } from 'dexie-react-hooks'
-import { Clock, Dumbbell, Flame, HeartPulse, Timer, Zap } from 'lucide-react'
+import { Dumbbell, Timer, Zap } from 'lucide-react'
 import { BarChart, LineChart } from '@/components/Chart'
+import { BlockSkeleton } from '@/components/Page'
 import { Card, SectionTitle } from '@/components/Card'
 import { EmptyState } from '@/components/Feedback'
-import { StatTile } from '@/components/StatTile'
+import { StatCard } from '@/components/StatCard'
 import { addDays, formatShort, lastNDays, startOfWeek, type DateKey } from '@/lib/date'
-import { formatDuration } from '@/lib/format'
+import { formatDuration, roundTo } from '@/lib/format'
 import { db } from '@/storage/db'
 import type { JourneyStats } from '@/hooks/useStats'
+import { WeeklySummary } from './WeeklySummary'
 
 const WEEKS_SHOWN = 8
-const DAYS_SHOWN = 30
+const DAYS_SHOWN = 28
 
+function mean(values: Array<number | null>): number | null {
+  const nums = values.filter((v): v is number => v != null)
+  return nums.length ? nums.reduce((a, b) => a + b, 0) / nums.length : null
+}
+
+/**
+ * Trends, not readouts. Every number on this tab either compares against a
+ * previous period or is a personal best worth chasing; anything that could not
+ * be acted on has moved to the Journey tab.
+ */
 export function OverviewTab({ stats, today }: { stats: JourneyStats | undefined; today: DateKey }) {
   const data = useLiveQuery(async () => {
     const [history, daily] = await Promise.all([
@@ -21,7 +33,7 @@ export function OverviewTab({ stats, today }: { stats: JourneyStats | undefined;
     return { history, daily }
   }, [])
 
-  if (!data || !stats) return null
+  if (!data || !stats) return <BlockSkeleton />
 
   const { history, daily } = data
   const achievement = stats.achievement
@@ -31,12 +43,12 @@ export function OverviewTab({ stats, today }: { stats: JourneyStats | undefined;
       <EmptyState
         icon={<Dumbbell className="h-6 w-6" />}
         title="Nothing to chart yet"
-        description="Finish a session or fill in a daily check-in and the picture starts building here."
+        description="Finish a session or fill in a daily check-in. After a week there is enough here to show a direction rather than a dot."
       />
     )
   }
 
-  /* Sessions per week for the last eight weeks. */
+  /* Sessions per week, last eight weeks. */
   const weekStarts = Array.from({ length: WEEKS_SHOWN }, (_, i) =>
     startOfWeek(addDays(today, (i - WEEKS_SHOWN + 1) * 7)),
   )
@@ -45,56 +57,38 @@ export function OverviewTab({ stats, today }: { stats: JourneyStats | undefined;
     return history.filter((entry) => entry.date >= start && entry.date <= end).length
   })
 
-  /* Pain, sleep and energy across the last thirty days. */
+  /* Back pain over four weeks, summarised as a sentence before the chart. */
   const days = lastNDays(today, DAYS_SHOWN)
-  const dailyByDate = new Map(daily.map((d) => [d.date, d]))
-  const pain = days.map((day) => dailyByDate.get(day)?.pain ?? null)
-  const sleep = days.map((day) => dailyByDate.get(day)?.sleepHours ?? null)
-  const energy = days.map((day) => dailyByDate.get(day)?.energy ?? null)
+  const byDate = new Map(daily.map((d) => [d.date, d]))
+  const pain = days.map((day) => byDate.get(day)?.pain ?? null)
+  const hasPain = pain.filter((p) => p != null).length >= 2
 
-  const hasPain = pain.some((value) => value != null)
-  const hasSleep = sleep.some((value) => value != null) || energy.some((value) => value != null)
+  const painRecent = mean(pain.slice(-14))
+  const painPrior = mean(pain.slice(0, 14))
+  const painCopy =
+    painRecent != null && painPrior != null
+      ? painRecent < painPrior - 0.3
+        ? `Easing — averaging ${roundTo(painRecent, 1)} over the last fortnight, down from ${roundTo(painPrior, 1)}.`
+        : painRecent > painPrior + 0.3
+          ? `Up a little — averaging ${roundTo(painRecent, 1)}, from ${roundTo(painPrior, 1)}. Worth a gentler week.`
+          : `Steady around ${roundTo(painRecent, 1)} out of 10.`
+      : painRecent != null
+        ? `Averaging ${roundTo(painRecent, 1)} out of 10 so far.`
+        : null
 
   return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-        <StatTile
-          label="Workouts"
-          tone="accent"
-          icon={<Dumbbell className="h-3.5 w-3.5" />}
-          value={achievement.totalWorkouts}
-        />
-        <StatTile
-          label="Mobility"
-          tone="teal"
-          icon={<Zap className="h-3.5 w-3.5" />}
-          value={achievement.totalMobilitySessions}
-        />
-        <StatTile
-          label="Streak"
-          tone="rose"
-          icon={<Flame className="h-3.5 w-3.5" />}
-          value={stats.streak.current}
-          unit="days"
-        />
-        <StatTile
-          label="Time trained"
-          tone="indigo"
-          icon={<Clock className="h-3.5 w-3.5" />}
-          value={
-            achievement.totalMinutes < 60
-              ? achievement.totalMinutes
-              : Math.round(achievement.totalMinutes / 60)
-          }
-          unit={achievement.totalMinutes < 60 ? 'min' : 'hrs'}
-        />
-        <StatTile
+    <div className="space-y-section">
+      <WeeklySummary today={today} history={history} daily={daily} />
+
+      {/* The two numbers worth chasing. Totals live on the Journey tab. */}
+      <div className="grid grid-cols-2 gap-2">
+        <StatCard
           label="Best push-ups"
           tone="amber"
           icon={<Zap className="h-3.5 w-3.5" />}
           value={achievement.bestPushups || '—'}
         />
-        <StatTile
+        <StatCard
           label="Best plank"
           tone="sky"
           icon={<Timer className="h-3.5 w-3.5" />}
@@ -108,50 +102,24 @@ export function OverviewTab({ stats, today }: { stats: JourneyStats | undefined;
           <BarChart
             labels={weekStarts.map((start) => formatShort(start))}
             series={[{ label: 'Sessions', points: sessionsPerWeek, token: 'accent' }]}
-            height={180}
+            height={170}
           />
         </Card>
       </div>
 
       {hasPain ? (
         <div>
-          <SectionTitle>Lower back, last 30 days</SectionTitle>
+          <SectionTitle>Lower back</SectionTitle>
           <Card>
+            {painCopy ? (
+              <p className="mb-3 text-label leading-relaxed text-muted">{painCopy}</p>
+            ) : null}
             <LineChart
               labels={days.map((day) => formatShort(day))}
               series={[{ label: 'Pain', points: pain, token: 'rose', fill: true }]}
-              height={180}
+              height={150}
               beginAtZero
             />
-            <p className="mt-3 flex items-center gap-2 text-xs text-faint">
-              <HeartPulse className="h-3.5 w-3.5 text-rose" />
-              Lower is better. Log it daily and the trend becomes obvious.
-            </p>
-          </Card>
-        </div>
-      ) : null}
-
-      {hasSleep ? (
-        <div>
-          <SectionTitle>Sleep and energy</SectionTitle>
-          <Card>
-            <LineChart
-              labels={days.map((day) => formatShort(day))}
-              series={[
-                { label: 'Sleep (hrs)', points: sleep, token: 'sky' },
-                { label: 'Energy (1–5)', points: energy, token: 'teal' },
-              ]}
-              height={180}
-              beginAtZero
-            />
-            <div className="mt-3 flex gap-4 text-xs text-faint">
-              <span className="flex items-center gap-1.5">
-                <span className="h-2 w-2 rounded-full bg-sky" /> Sleep
-              </span>
-              <span className="flex items-center gap-1.5">
-                <span className="h-2 w-2 rounded-full bg-teal" /> Energy
-              </span>
-            </div>
           </Card>
         </div>
       ) : null}
