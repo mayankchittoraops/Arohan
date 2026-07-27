@@ -1,6 +1,6 @@
 import { lazy, Suspense } from 'react'
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
-import { AnimatePresence } from 'framer-motion'
+import { AnimatePresence, MotionConfig } from 'framer-motion'
 import { BottomNav } from '@/components/BottomNav'
 import { ToastHost } from '@/components/Feedback'
 import { PageSkeleton } from '@/components/Page'
@@ -32,24 +32,29 @@ export function App() {
   const immersive = FULL_SCREEN_ROUTES.includes(location.pathname)
 
   return (
-    <div className="min-h-dvh bg-canvas">
-      <Suspense fallback={<PageSkeleton />}>
-        <AnimatePresence mode="wait">
-          <Routes location={location} key={location.pathname}>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/workout" element={<WorkoutPage />} />
-            <Route path="/workout/active" element={<ActiveWorkoutPage />} />
-            <Route path="/mobility" element={<MobilityPage />} />
-            <Route path="/mobility/:id" element={<MobilityRoutinePage />} />
-            <Route path="/progress" element={<ProgressPage />} />
-            <Route path="/settings" element={<SettingsPage />} />
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </AnimatePresence>
-      </Suspense>
+    /* `reducedMotion="user"` makes every motion component respect the OS
+       setting, so honouring it is one decision rather than one per animation.
+       The CSS half is already handled in index.css. */
+    <MotionConfig reducedMotion="user">
+      <div className="min-h-dvh bg-canvas">
+        <Suspense fallback={<PageSkeleton />}>
+          <AnimatePresence mode="wait">
+            <Routes location={location} key={location.pathname}>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/workout" element={<WorkoutPage />} />
+              <Route path="/workout/active" element={<ActiveWorkoutPage />} />
+              <Route path="/mobility" element={<MobilityPage />} />
+              <Route path="/mobility/:id" element={<MobilityRoutinePage />} />
+              <Route path="/progress" element={<ProgressPage />} />
+              <Route path="/settings" element={<SettingsPage />} />
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </AnimatePresence>
+        </Suspense>
 
-      {immersive ? null : <BottomNav />}
-      <ToastHost />
-    </div>
+        {immersive ? null : <BottomNav />}
+        <ToastHost />
+      </div>
+    </MotionConfig>
   )
 }

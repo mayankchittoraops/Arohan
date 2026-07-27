@@ -130,13 +130,23 @@ export const DEFAULT_SETTINGS: Settings = {
   onboarded: false,
 }
 
+/**
+ * In-flight guard only. It deliberately does *not* memoise the result: the
+ * settings row can disappear after a successful seed — a reset, or importing a
+ * backup that has no settings in it — and a cached "already seeded" would leave
+ * the app with no settings row and nothing to render.
+ */
 let seeding: Promise<void> | null = null
 
-/** Creates the settings row on first run. Safe to call often. */
+/** Creates the settings row when there isn't one. Safe to call often. */
 export function ensureSeeded(): Promise<void> {
   seeding ??= (async () => {
-    const existing = await db.settings.get(1)
-    if (!existing) await db.settings.put({ ...DEFAULT_SETTINGS, startDate: todayKey() })
+    try {
+      const existing = await db.settings.get(1)
+      if (!existing) await db.settings.put({ ...DEFAULT_SETTINGS, startDate: todayKey() })
+    } finally {
+      seeding = null
+    }
   })()
 
   return seeding
@@ -147,6 +157,5 @@ export async function resetDatabase(): Promise<void> {
   await db.transaction('rw', db.tables, async () => {
     await Promise.all(db.tables.map((table) => table.clear()))
   })
-  seeding = null
   await ensureSeeded()
 }

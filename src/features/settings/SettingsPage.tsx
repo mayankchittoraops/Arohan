@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react'
-import { Bell, Check, Download, RotateCcw, Upload } from 'lucide-react'
+import { Bell, Check, Download, HardDrive, RotateCcw, ShieldCheck, Upload } from 'lucide-react'
 import { Button } from '@/components/Button'
 import { Card, SectionTitle } from '@/components/Card'
 import { ConfirmDialog } from '@/components/Feedback'
@@ -13,6 +13,7 @@ import {
   useReminders,
 } from '@/hooks/useReminders'
 import { useSettings, useUpdateSettings } from '@/hooks/useSettings'
+import { useStorageEstimate, formatBytes } from '@/hooks/useStorageEstimate'
 import { useToast } from '@/hooks/useToast'
 import { useToday } from '@/hooks/useToday'
 import { cn } from '@/lib/cn'
@@ -41,6 +42,8 @@ export function SettingsPage() {
   const [confirmReset, setConfirmReset] = useState(false)
   const [confirmImport, setConfirmImport] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
+
+  const { estimate, requestPersistence } = useStorageEstimate()
 
   useReminders(settings)
 
@@ -307,6 +310,55 @@ export function SettingsPage() {
 
       {/* ---------------------------------------------------- your data */}
       <SectionTitle>Your data</SectionTitle>
+
+      {estimate.supported ? (
+        <Card className="mb-3">
+          <div className="flex items-start gap-3">
+            {estimate.persisted ? (
+              <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-mint" />
+            ) : (
+              <HardDrive className="mt-0.5 h-5 w-5 shrink-0 text-amber" />
+            )}
+            <div className="min-w-0 flex-1">
+              <p className="text-label font-semibold text-ink">
+                {estimate.persisted ? 'Storage is protected' : 'Storage is not protected yet'}
+              </p>
+              <p className="mt-1 text-caption leading-relaxed text-muted">
+                {estimate.persisted
+                  ? 'This browser has promised not to clear Arohan’s data to free up space.'
+                  : 'Browsers can clear data for sites they consider inactive. Installing Arohan to the Home Screen and using it daily usually earns the promise.'}
+              </p>
+              {estimate.usage != null ? (
+                <p className="mt-2 text-caption tabular text-faint">
+                  Using {formatBytes(estimate.usage)}
+                  {estimate.quota != null ? ` of about ${formatBytes(estimate.quota)} available` : ''}
+                </p>
+              ) : null}
+            </div>
+          </div>
+
+          {!estimate.persisted ? (
+            <Button
+              variant="secondary"
+              full
+              className="mt-4"
+              onClick={() => {
+                void requestPersistence().then((granted) =>
+                  show(
+                    granted
+                      ? 'Storage is now protected'
+                      : 'The browser declined for now — it often grants this once the app is installed and used regularly',
+                    granted ? 'success' : 'warning',
+                  ),
+                )
+              }}
+            >
+              Request protection
+            </Button>
+          ) : null}
+        </Card>
+      ) : null}
+
       <Card className="mb-6 space-y-3">
         <p className="text-sm leading-relaxed text-muted">
           Everything lives in this browser and never leaves it. Export regularly — clearing site
