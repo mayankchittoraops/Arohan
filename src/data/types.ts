@@ -125,8 +125,14 @@ export type MobilitySectionId =
   | 'hips'
   | 'hamstrings'
 
+/** How the mobility library is grouped on screen. */
+export type MobilityCategory = 'Morning' | 'Office' | 'Evening' | 'Recovery'
+
+export const MOBILITY_CATEGORIES: MobilityCategory[] = ['Morning', 'Office', 'Evening', 'Recovery']
+
 export interface MobilityRoutine {
   id: MobilitySectionId
+  category: MobilityCategory
   name: string
   subtitle: string
   /** Why you would reach for this routine. */

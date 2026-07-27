@@ -1,58 +1,55 @@
 import { requireExercise } from '@/data/exercises'
-import type { PlannedExercise } from '@/data/types'
-import { ExerciseGlyph } from '@/components/ExerciseGlyph'
+import type { PlannedExercise, Section } from '@/data/types'
+import { ExerciseCard } from '@/components/ExerciseCard'
 
-const SECTION_TITLE = {
+const SECTION_TITLE: Record<Section, string> = {
   warmup: 'Warm-up',
   main: 'Main work',
   cooldown: 'Cool-down',
-} as const
+}
 
-const ORDER = ['warmup', 'main', 'cooldown'] as const
+const ORDER: Section[] = ['warmup', 'main', 'cooldown']
 
-/** The read-only list of everything a session contains. */
+/**
+ * The read-only list of everything a session contains, grouped by section.
+ *
+ * Rendered with the shared ExerciseCard, so every movement shows its duration
+ * or rep target and the muscles it works — whether it appears in a workout
+ * plan or a mobility routine.
+ */
 export function SessionPlan({ blocks }: { blocks: PlannedExercise[] }) {
   return (
-    <div className="space-y-6">
+    <div className="space-y-section">
       {ORDER.map((section) => {
         const items = blocks.filter((b) => b.section === section)
         if (items.length === 0) return null
 
         return (
           <section key={section}>
-            <h3 className="mb-2 px-1 text-[13px] font-semibold uppercase tracking-[0.08em] text-faint">
+            <h3 className="mb-2 px-1 text-micro uppercase text-faint">
               {SECTION_TITLE[section]}
             </h3>
             <ul className="overflow-hidden rounded-xl2 border border-line bg-surface">
               {items.map((block, i) => {
                 const exercise = requireExercise(block.exerciseId)
-                const perSide =
-                  exercise.kind === 'repsPerSide' || exercise.kind === 'timePerSide'
+                const perSide = exercise.kind === 'repsPerSide' || exercise.kind === 'timePerSide'
                 const target =
                   block.seconds != null
-                    ? `${block.sets} × ${block.seconds}s`
+                    ? block.sets > 1
+                      ? `${block.sets} × ${block.seconds}s`
+                      : `${block.seconds}s`
                     : `${block.sets} × ${block.reps}`
 
                 return (
                   <li
                     key={`${block.exerciseId}-${i}`}
-                    className="flex items-center gap-3 border-b border-line px-3 py-3 last:border-0"
+                    className="border-b border-line last:border-0"
                   >
-                    <ExerciseGlyph
-                      glyph={exercise.glyph}
-                      tone={section === 'main' ? 'accent' : 'muted'}
-                      className="h-12 w-12"
+                    <ExerciseCard
+                      exercise={exercise}
+                      target={target}
+                      detail={perSide ? 'each side' : undefined}
                     />
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate font-medium text-ink">{exercise.name}</p>
-                      <p className="truncate text-xs text-faint">{exercise.summary}</p>
-                    </div>
-                    <span className="shrink-0 text-right text-sm font-semibold tabular text-muted">
-                      {target}
-                      {perSide ? (
-                        <span className="block text-[10px] font-medium text-faint">each side</span>
-                      ) : null}
-                    </span>
                   </li>
                 )
               })}

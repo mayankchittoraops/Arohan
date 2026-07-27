@@ -18,6 +18,7 @@ function step(exerciseId: string, target: { reps: number } | { seconds: number }
 export const MOBILITY_ROUTINES: MobilityRoutine[] = [
   {
     id: 'morning',
+    category: 'Morning',
     name: 'Morning',
     subtitle: 'Wake the body up',
     intent: 'Eight minutes to undo the night and start the day moving well.',
@@ -35,6 +36,7 @@ export const MOBILITY_ROUTINES: MobilityRoutine[] = [
   },
   {
     id: 'office',
+    category: 'Office',
     name: 'Office',
     subtitle: 'Between meetings',
     intent: 'Six minutes at your desk to reverse everything sitting does.',
@@ -52,6 +54,7 @@ export const MOBILITY_ROUTINES: MobilityRoutine[] = [
   },
   {
     id: 'evening',
+    category: 'Evening',
     name: 'Evening',
     subtitle: 'Wind down',
     intent: 'Twelve slow minutes to lower the volume before sleep.',
@@ -69,6 +72,7 @@ export const MOBILITY_ROUTINES: MobilityRoutine[] = [
   },
   {
     id: 'lowerBack',
+    category: 'Recovery',
     name: 'Lower Back',
     subtitle: 'When it complains',
     intent: 'The routine to reach for on a bad back day — gentle, in this order.',
@@ -88,6 +92,7 @@ export const MOBILITY_ROUTINES: MobilityRoutine[] = [
   },
   {
     id: 'shoulders',
+    category: 'Office',
     name: 'Shoulders',
     subtitle: 'Open the front, wake the back',
     intent: 'For shoulders that have been rounded forward all day.',
@@ -104,6 +109,7 @@ export const MOBILITY_ROUTINES: MobilityRoutine[] = [
   },
   {
     id: 'neck',
+    category: 'Office',
     name: 'Neck',
     subtitle: 'Screen recovery',
     intent: 'Six minutes for the tension that gathers at the base of the skull.',
@@ -119,6 +125,7 @@ export const MOBILITY_ROUTINES: MobilityRoutine[] = [
   },
   {
     id: 'hips',
+    category: 'Recovery',
     name: 'Hips',
     subtitle: 'Open and stable',
     intent: 'Tight hips make the lower back do their job. This gives it back.',
@@ -135,6 +142,7 @@ export const MOBILITY_ROUTINES: MobilityRoutine[] = [
   },
   {
     id: 'hamstrings',
+    category: 'Recovery',
     name: 'Hamstrings',
     subtitle: 'The whole back line',
     intent: 'Lengthen the hamstrings without ever rounding the lower back.',
