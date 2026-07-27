@@ -48,7 +48,7 @@ async function seed() {
   await saveMeasurement('2026-01-10', {
     weightKg: 82.5,
     bodyFatPct: 24.1,
-    skeletalMusclePct: 38.2,
+    musclePct: 78.2,
     visceralFat: 9,
     neckCm: 39,
     chestCm: 102,
@@ -125,7 +125,7 @@ describe('round trip', () => {
       ...EMPTY_MEASUREMENT('2026-01-10'),
       weightKg: 82.5,
       bodyFatPct: 24.1,
-      skeletalMusclePct: 38.2,
+      musclePct: 78.2,
       visceralFat: 9,
       neckCm: 39,
       chestCm: 102,
@@ -216,6 +216,39 @@ describe('backwards compatibility', () => {
     expect(measurement?.waistCm).toBe(95)
     // Fields the old file never had read as absent, not as garbage.
     expect(measurement?.bodyFatPct ?? null).toBeNull()
+  })
+
+  it('renames the muscle field in a v2 backup', async () => {
+    await seed()
+    const backup = await exportBackup()
+    const v2 = {
+      ...backup,
+      version: 2,
+      data: {
+        ...backup.data,
+        measurements: [
+          {
+            date: '2026-01-10',
+            weightKg: 82.5,
+            bodyFatPct: 24.1,
+            skeletalMusclePct: 78.2,
+            waistCm: 94,
+            note: '',
+            updatedAt: 1,
+          },
+        ],
+      },
+    }
+
+    await resetDatabase()
+    await importBackup(JSON.stringify(v2))
+
+    // Import bypasses Dexie's upgrade functions, so the rename has to happen
+    // on the way in or the reading lands under a key nothing reads.
+    const measurement = await db.measurements.get('2026-01-10')
+    expect(measurement?.musclePct).toBe(78.2)
+    expect(measurement).not.toHaveProperty('skeletalMusclePct')
+    expect(measurement?.bodyFatPct).toBe(24.1)
   })
 })
 

@@ -122,7 +122,7 @@ export const EMPTY_MEASUREMENT = (date: DateKey): Measurement => ({
   date,
   weightKg: null,
   bodyFatPct: null,
-  skeletalMusclePct: null,
+  musclePct: null,
   visceralFat: null,
   neckCm: null,
   chestCm: null,

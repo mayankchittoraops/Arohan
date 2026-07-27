@@ -1,7 +1,7 @@
 import 'fake-indexeddb/auto'
 import Dexie from 'dexie'
 import { afterEach, describe, expect, it } from 'vitest'
-import { createTestDatabase } from './db'
+import { createTestDatabase, SCHEMA_VERSION } from './db'
 
 /**
  * Proves an existing install survives the upgrade.
@@ -116,7 +116,7 @@ describe('v1 → v2', () => {
 
     const v2 = track(createTestDatabase(name))
     await v2.open()
-    expect(v2.verno).toBe(2)
+    expect(v2.verno).toBe(SCHEMA_VERSION)
 
     // Nothing lost.
     const settings = await v2.settings.get(1)
@@ -134,9 +134,11 @@ describe('v1 → v2', () => {
     expect(measurement?.note).toBe('morning')
 
     // …and every new field present and explicitly null, not undefined.
+    // `musclePct`, not `skeletalMusclePct`: v2 backfills the old name and v3
+    // renames it, so a v1 install arriving today lands on the new one.
     for (const field of [
       'bodyFatPct',
-      'skeletalMusclePct',
+      'musclePct',
       'visceralFat',
       'neckCm',
       'chestCm',
@@ -196,10 +198,32 @@ describe('v1 → v2', () => {
     expect(row?.bodyFatPct).toBe(22.4)
   })
 
+  it('renames the muscle field on the way through', async () => {
+    const name = uniqueName()
+
+    const v1 = openV1(name)
+    await v1.table('measurements').put({
+      date: '2026-01-10',
+      weightKg: 82.5,
+      waistCm: 94,
+      pushupMax: null,
+      plankSeconds: null,
+      note: '',
+      updatedAt: 1,
+    })
+    await v1.close()
+
+    const current = track(createTestDatabase(name))
+    await current.open()
+    const row = await current.measurements.get('2026-01-10')
+    expect(row).toHaveProperty('musclePct')
+    expect(row).not.toHaveProperty('skeletalMusclePct')
+  })
+
   it('creates a fresh database straight at the current version', async () => {
     const db = track(createTestDatabase(uniqueName()))
     await db.open()
-    expect(db.verno).toBe(2)
+    expect(db.verno).toBe(SCHEMA_VERSION)
     expect(db.tables.map((t) => t.name).toSorted()).toEqual([
       'achievements',
       'daily_health',
@@ -210,5 +234,105 @@ describe('v1 → v2', () => {
       'workout_history',
       'workouts',
     ])
+  })
+})
+
+/** The v2 schema exactly as Version 1.0 Beta shipped it. */
+function openV2(name: string) {
+  const db = track(new Dexie(name))
+  db.version(1).stores({
+    settings: 'id',
+    daily_health: 'date',
+    workouts: 'id, date, source',
+    workout_history: 'id, date, templateId, kind, source',
+    measurements: 'date',
+    habits: 'id, date, habitId, [date+habitId]',
+    achievements: 'id, unlockedAt',
+    quotes: 'id, favourite',
+    photos: 'id, date',
+  })
+  db.version(2).stores({ quotes: null, habits: 'id, date, habitId' })
+  return db
+}
+
+describe('v2 → v3', () => {
+  it('carries the muscle reading across under its correct name', async () => {
+    const name = uniqueName()
+
+    const v2 = openV2(name)
+    // 78.2 is a real Muscle Rate reading. It was always this metric; only the
+    // field name was wrong, so the number must survive untouched.
+    await v2.table('measurements').put({
+      date: '2026-02-01',
+      weightKg: 82.5,
+      bodyFatPct: 24.1,
+      skeletalMusclePct: 78.2,
+      visceralFat: 9,
+      waistCm: 94,
+      note: 'morning',
+      updatedAt: 7,
+    })
+    await v2.close()
+
+    const v3 = track(createTestDatabase(name))
+    await v3.open()
+    expect(v3.verno).toBe(3)
+
+    const row = await v3.measurements.get('2026-02-01')
+    expect(row?.musclePct).toBe(78.2)
+    expect(row).not.toHaveProperty('skeletalMusclePct')
+
+    // Everything alongside it is untouched.
+    expect(row?.weightKg).toBe(82.5)
+    expect(row?.bodyFatPct).toBe(24.1)
+    expect(row?.visceralFat).toBe(9)
+    expect(row?.waistCm).toBe(94)
+    expect(row?.note).toBe('morning')
+  })
+
+  it('leaves a row that never had a muscle reading as an explicit null', async () => {
+    const name = uniqueName()
+
+    const v2 = openV2(name)
+    await v2.table('measurements').put({
+      date: '2026-02-02',
+      weightKg: 81,
+      skeletalMusclePct: null,
+      note: '',
+      updatedAt: 1,
+    })
+    await v2.close()
+
+    const v3 = track(createTestDatabase(name))
+    await v3.open()
+    const row = await v3.measurements.get('2026-02-02')
+    expect(row).toHaveProperty('musclePct')
+    expect(row?.musclePct).toBeNull()
+  })
+
+  it('does not clobber a value written after the rename', async () => {
+    const name = uniqueName()
+
+    const v2 = openV2(name)
+    await v2.table('measurements').put({
+      date: '2026-02-03',
+      weightKg: 80,
+      skeletalMusclePct: 77,
+      note: '',
+      updatedAt: 1,
+    })
+    await v2.close()
+
+    const first = track(createTestDatabase(name))
+    await first.open()
+    await first.measurements.put({
+      ...(await first.measurements.get('2026-02-03'))!,
+      musclePct: 79.4,
+    })
+    await first.close()
+
+    const second = track(createTestDatabase(name))
+    await second.open()
+    expect((await second.measurements.get('2026-02-03'))?.musclePct).toBe(79.4)
   })
 })

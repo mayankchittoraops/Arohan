@@ -53,7 +53,7 @@ Sixteen metrics, all optional, grouped so the form is quick to fill:
 
 | Group | Metrics |
 | --- | --- |
-| Composition | Weight, Body fat %, Skeletal muscle %, Visceral fat |
+| Composition | Weight, Body fat %, Muscle %, Visceral fat |
 | Girths | Neck, Chest, Waist, Hips, Left/Right arm, Left/Right thigh, Left/Right calf |
 | Performance | Push-up max, Plank hold |
 
@@ -103,7 +103,7 @@ to fetch.
 
 ## Quality bar
 
-**128 tests** over the logic that decides things — the coach, streaks, progression,
+**142 tests** over the logic that decides things — the coach, streaks, progression,
 substitution, dates, trends, session mechanics, backup round-trips and the schema migration.
 They run in about a second, and CI runs them before every deploy.
 
@@ -137,7 +137,7 @@ npm install
 npm run dev        # http://localhost:5173/Arohan/
 npm run build      # type-check then production build into dist/
 npm run preview
-npm test           # 128 tests, Vitest
+npm test           # 142 tests, Vitest
 npm run check      # tsc -b && oxlint src && vitest run
 ```
 

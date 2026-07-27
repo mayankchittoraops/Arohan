@@ -58,9 +58,9 @@ describe('trendFor', () => {
   })
 
   it('calls a rise favourable when higher is better', () => {
-    const t = trendFor('skeletalMusclePct', [
-      m('2026-01-01', { skeletalMusclePct: 38 }),
-      m('2026-01-08', { skeletalMusclePct: 39 }),
+    const t = trendFor('musclePct', [
+      m('2026-01-01', { musclePct: 78 }),
+      m('2026-01-08', { musclePct: 79 }),
     ])
     expect(t.favourable).toBe(true)
   })

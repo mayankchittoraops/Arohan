@@ -129,7 +129,14 @@ export interface Measurement {
   /* Composition — typically all four come off a smart scale at once. */
   weightKg: number | null
   bodyFatPct: number | null
-  skeletalMusclePct: number | null
+  /**
+   * The "Muscle Rate" a consumer scale reports: all lean soft tissue as a
+   * share of body weight, excluding only fat and bone mineral. Typically
+   * 70–85%. This is *not* skeletal muscle mass percentage, which runs
+   * 33–45% — the field was named `skeletalMusclePct` until v3, which was
+   * wrong for every scale that feeds it.
+   */
+  musclePct: number | null
   /** Visceral fat rating, as reported by the scale (roughly 1–59). */
   visceralFat: number | null
 

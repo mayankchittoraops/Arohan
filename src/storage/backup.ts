@@ -1,7 +1,7 @@
 import { db, ensureSeeded } from './db'
 import type { ProgressPhoto } from './types'
 
-export const BACKUP_VERSION = 2
+export const BACKUP_VERSION = 3
 
 interface SerialisedPhoto extends Omit<ProgressPhoto, 'blob'> {
   /** `data:` URL — JSON cannot carry a Blob. */
@@ -112,6 +112,27 @@ export interface ImportResult {
   counts: Record<string, number>
 }
 
+/**
+ * Import writes rows straight into the tables, so Dexie's upgrade functions
+ * never see them — a backup taken before a rename has to be reshaped here or
+ * the value lands under a key nothing reads.
+ *
+ * Mirrors the v3 migration in `db.ts`. Anything added here stays here: old
+ * backup files do not stop existing.
+ */
+function migrateMeasurement(row: unknown): unknown {
+  if (!row || typeof row !== 'object') return row
+  const measurement = { ...row } as Record<string, unknown>
+
+  // v2 → v3: `skeletalMusclePct` was always the scale's Muscle Rate reading.
+  if ('skeletalMusclePct' in measurement) {
+    measurement.musclePct ??= measurement.skeletalMusclePct ?? null
+    delete measurement.skeletalMusclePct
+  }
+
+  return measurement
+}
+
 /** Replaces everything currently stored with the contents of the backup. */
 export async function importBackup(raw: string): Promise<ImportResult> {
   let parsed: unknown
@@ -137,7 +158,7 @@ export async function importBackup(raw: string): Promise<ImportResult> {
       db.daily_health.bulkPut((data.daily_health ?? []) as never[]),
       db.workouts.bulkPut((data.workouts ?? []) as never[]),
       db.workout_history.bulkPut((data.workout_history ?? []) as never[]),
-      db.measurements.bulkPut((data.measurements ?? []) as never[]),
+      db.measurements.bulkPut((data.measurements ?? []).map(migrateMeasurement) as never[]),
       db.habits.bulkPut((data.habits ?? []) as never[]),
       db.achievements.bulkPut((data.achievements ?? []) as never[]),
       db.photos.bulkPut(photos),

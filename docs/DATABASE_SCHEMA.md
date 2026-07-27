@@ -1,6 +1,6 @@
 # Arohan — Database Schema
 
-**Database:** `arohan` · **Schema version:** 2 · **Engine:** IndexedDB via Dexie 4.4
+**Database:** `arohan` · **Schema version:** 3 · **Engine:** IndexedDB via Dexie 4.4
 
 Every field Arohan stores is documented here. If a field exists in
 `src/storage/types.ts` and is not on this page, one of the two is wrong.
@@ -155,7 +155,7 @@ neither happens.
 | `date` | — | `DateKey` (primary key) | v1 |
 | `weightKg` | Composition | kg | v1 |
 | `bodyFatPct` | Composition | % | **v2** |
-| `skeletalMusclePct` | Composition | % | **v2** |
+| `musclePct` | Composition | % | v2 as `skeletalMusclePct`, renamed **v3** |
 | `visceralFat` | Composition | rating, ~1–59 | **v2** |
 | `neckCm` | Girths | cm | **v2** |
 | `chestCm` | Girths | cm | **v2** |
@@ -171,6 +171,13 @@ neither happens.
 
 Left and right are separate columns rather than one averaged number, because asymmetry is
 the thing worth seeing. The Body screen flags a left/right gap of 3% or more.
+
+**`musclePct` is Muscle Rate, not skeletal muscle mass.** Consumer BIA scales — Dr Trust,
+Renpho, Xiaomi and the rest — report all lean soft tissue as a share of body weight:
+skeletal and smooth muscle, organs and their water, everything except fat and bone mineral.
+That runs **70–85%**. Skeletal muscle mass percentage, which is what the field was called
+until v3, runs **33–45%** and cannot reach 78% in a human. The column was renamed rather
+than re-scaled because the stored reading was always the former.
 
 **BMI is deliberately not a column.** It is `weightKg / (heightCm/100)²`, computed at
 display time from the latest weight and `settings.heightCm`. Storing it would let it
@@ -268,34 +275,70 @@ this.version(2)
 The upgrade uses `??=`, so it is idempotent and safe to replay. Dropping a store and an
 index is metadata-only; no user record is destroyed by the v2 migration.
 
+### v3 — the muscle field asked for the wrong metric
+
+```ts
+this.version(3).upgrade(async (tx) => {
+  await tx.table('measurements').toCollection().modify((m) => {
+    m.musclePct ??= m.skeletalMusclePct ?? null
+    delete m.skeletalMusclePct
+  })
+})
+```
+
+| Change | Reason |
+| --- | --- |
+| `skeletalMusclePct` → `musclePct` | The field asked for skeletal muscle mass % (33–45%) but was fed by scales that report Muscle Rate (70–85%). The entry bound of 70 silently clamped a real 78% reading down to 70 — `NumberInput` clamps rather than rejecting, so the wrong number was stored with no error shown. |
+
+No index changed, so this version declares no `.stores()` — Dexie inherits the previous
+schema. The value carries across untouched: the reading was always Muscle Rate, so only the
+name needed correcting. `??=` again, so a replay cannot clobber a value written after the
+rename.
+
+Two things had to move together with the column:
+
+- **`NEW_MEASUREMENT_FIELDS` in `db.ts` still spells it `skeletalMusclePct`.** That list is
+  v2's history, replayed verbatim for anyone still on v1; v3 does the rename afterwards.
+  Correcting the spelling there would leave a v1 install with neither column.
+- **`backup.ts` normalises the key on import.** Import writes rows straight into the tables,
+  so Dexie's upgrade functions never see them — a v2 backup file would otherwise restore the
+  reading under a key nothing reads. `migrateMeasurement()` mirrors the migration, and
+  `BACKUP_VERSION` moved to 3.
+
 ### Verifying a migration
 
-[`src/storage/migration.test.ts`](../src/storage/migration.test.ts) seeds a database in the
-**v1 shape** with `fake-indexeddb`, closes it, reopens it through the real schema and
-asserts the v2 result: the new columns exist and are null, `heightCm` is null, `seen` is
-gone, `quotes` is gone, and every pre-existing value — settings, workout history,
-measurements — survives untouched. It also asserts that a fresh database lands on v2
-directly.
+[`src/storage/migration.test.ts`](../src/storage/migration.test.ts) seeds a database in each
+**old shape** with `fake-indexeddb`, closes it, reopens it through the real schema and
+asserts the current result.
 
-The same path was exercised in a real browser before release: a v1 database was built in
-Safari's engine, the v2 build was loaded over it, and the data was checked on screen.
+For **v1 → v2**: the new columns exist and are null, `heightCm` is null, `seen` is gone,
+`quotes` is gone, and every pre-existing value — settings, workout history, measurements —
+survives untouched. For **v2 → v3**: a 78.2 reading arrives intact under `musclePct`, the old
+key is gone, every neighbouring field is unchanged, a row that never had a reading becomes an
+explicit null, and a value written after the rename is not clobbered by a replay. A separate
+case asserts a fresh database lands on the current version directly.
 
-### Adding v3
+The v1 → v2 path was also exercised in a real browser before release: a v1 database was built
+in Safari's engine, the v2 build was loaded over it, and the data was checked on screen.
 
-1. **Never edit an existing `version(n).stores()` block.** Dexie replays history; changing
-   history changes what installed clients upgrade *from*.
-2. Add `this.version(3)`, declaring every store whose indexes changed and `null` for any
-   store being dropped.
+### Adding v4
+
+1. **Never edit an existing `version(n).stores()` block**, and never correct a field name in
+   a constant an old `.upgrade()` reads. Dexie replays history; changing history changes
+   what installed clients upgrade *from*.
+2. Add `this.version(4)`, declaring every store whose indexes changed and `null` for any
+   store being dropped. Omit `.stores()` entirely when only data changes.
 3. Put data backfill in `.upgrade()`. Prefer `??=` so it is replay-safe.
 4. Bump `SCHEMA_VERSION` in `db.ts`.
-5. Add a case to `migration.test.ts` that seeds the **v2** shape and asserts the v3 result.
-6. If the record shape changed in a way an old export cannot satisfy, bump
-   `BACKUP_VERSION` in `backup.ts` and handle the older number on import.
+5. Add a case to `migration.test.ts` that seeds the **v3** shape and asserts the v4 result.
+6. If a stored field was renamed or reshaped, mirror it in `migrateMeasurement()` (or a
+   sibling) in `backup.ts` and bump `BACKUP_VERSION` — **import bypasses Dexie's upgrade
+   path entirely**, so a migration alone does not cover restoring an older file.
 
-Step 5 is what stands between a schema change and a broken install. Do not skip it.
+Steps 5 and 6 are what stand between a schema change and a broken install. Do not skip them.
 
 > Note: Dexie stores the IndexedDB version as its own version × 10. Reading the raw
-> IDB version for schema 2 gives **20**, not 2. This trips up anyone inspecting the
+> IDB version for schema 3 gives **30**, not 3. This trips up anyone inspecting the
 > database in devtools.
 
 ---
@@ -308,7 +351,7 @@ of the schema:
 ```jsonc
 {
   "app": "arohan",
-  "version": 2,                       // BACKUP_VERSION
+  "version": 3,                       // BACKUP_VERSION
   "exportedAt": "2026-07-27T05:20:00.000Z",
   "data": {
     "settings": [...], "daily_health": [...], "workouts": [...],
@@ -318,9 +361,11 @@ of the schema:
 }
 ```
 
-Import validates `app` and refuses a `version` higher than it knows, then **replaces**
+Import validates `app` and refuses a `version` higher than it knows, reshapes any record
+whose fields have been renamed since (see `migrateMeasurement()`), then **replaces**
 everything in one transaction — clear all tables, bulk-put the file, reseed settings if the
-file had none. It is a restore, not a merge. Full detail in the
+file had none. It is a restore, not a merge. Backups at version 1 and 2 still import
+correctly. Full detail in the
 [Backup Guide](BACKUP_GUIDE.md).
 
 ---
