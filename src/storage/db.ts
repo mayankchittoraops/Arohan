@@ -85,10 +85,30 @@ class ArohanDatabase extends Dexie {
             delete a.seen
           })
       })
+
+    // v3 — `skeletalMusclePct` asked for the wrong metric. Consumer scales
+    // report "Muscle Rate": all lean soft tissue, 70–85%, not skeletal muscle
+    // mass, 33–45%. The reading was always the former, so the value carries
+    // across unchanged and only the name is corrected.
+    this.version(3).upgrade(async (tx) => {
+      await tx
+        .table('measurements')
+        .toCollection()
+        .modify((m: Record<string, unknown>) => {
+          m.musclePct ??= m.skeletalMusclePct ?? null
+          delete m.skeletalMusclePct
+        })
+    })
   }
 }
 
-/** Added in v2. Kept beside the migration so the two cannot drift apart. */
+/**
+ * Added in v2. Kept beside the migration so the two cannot drift apart.
+ *
+ * `skeletalMusclePct` is renamed to `musclePct` in v3 and must stay spelled
+ * the old way here: this list is replayed verbatim for anyone still on v1, and
+ * v3 does the rename afterwards.
+ */
 const NEW_MEASUREMENT_FIELDS = [
   'bodyFatPct',
   'skeletalMusclePct',
@@ -104,7 +124,7 @@ const NEW_MEASUREMENT_FIELDS = [
   'calfRightCm',
 ] as const
 
-export const SCHEMA_VERSION = 2
+export const SCHEMA_VERSION = 3
 
 export const db = new ArohanDatabase()
 

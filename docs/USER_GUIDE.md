@@ -144,12 +144,19 @@ Sixteen metrics, in three groups.
 
 | Group | Metrics |
 | --- | --- |
-| **Composition** | Weight, Body fat %, Skeletal muscle %, Visceral fat |
+| **Composition** | Weight, Body fat %, Muscle %, Visceral fat |
 | **Girths** | Neck, Chest, Waist, Hips, Left/Right arm, Left/Right thigh, Left/Right calf |
 | **Performance** | Push-up max, Plank hold |
 
 Tap **Log measurements** and fill in *only what you measured*. Blanks stay blank — nothing
 is required, and a weigh-in day does not have to be a tape-measure day.
+
+**About the Muscle field.** Enter your scale's **Muscle Rate** reading exactly as it shows
+it — around 70–85% is normal, and a Dr Trust reporting 78% is right. That figure counts all
+lean tissue: muscle, organs and their water, everything except fat and bone. It is not the
+same as *skeletal muscle mass percentage*, which runs 33–45% and is what some fitness
+articles mean by "muscle %". Log whichever your scale gives you, but log the same one every
+time — the trend is only meaningful against itself.
 
 Each metric shows its latest value, how it moved since the reading before, and a small
 sparkline. Small movements are not reported as trends — the app knows that 0.1 kg is noise.

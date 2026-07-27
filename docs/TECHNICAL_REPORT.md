@@ -1,6 +1,6 @@
 # Arohan — Final Technical Report
 
-**Version 1.0 Beta** · 27 July 2026 · Schema v2 · Deployed to GitHub Pages
+**Version 1.0 Beta** · 27 July 2026 · Schema v3 · Deployed to GitHub Pages
 
 An offline-first Progressive Web App for one person's twelve-month health and exercise
 programme. No backend, no authentication, no runtime network request, no model.
@@ -61,7 +61,7 @@ Arohan/
     │   └── settings/                 SettingsPage
     │
     ├── storage/                      2,033 lines — persistence, no React
-    │   ├── db.ts                     schema v1 + v2, migration, seeding, reset
+    │   ├── db.ts                     schema v1–v3, migrations, seeding, reset
     │   ├── types.ts                  every stored record shape
     │   ├── repo.ts                   table-level read/write API
     │   ├── session.ts                session lifecycle and mutation
@@ -225,7 +225,7 @@ consequences of getting this wrong before it was serialised.
 
 ## 7. Storage
 
-**All application data is in IndexedDB via Dexie.** Database `arohan`, schema version 2,
+**All application data is in IndexedDB via Dexie.** Database `arohan`, schema version 3,
 eight object stores. `localStorage` holds one key, `arohan.theme`, so the inline script in
 `index.html` can apply the dark class before first paint; the settings table remains the
 source of truth.
@@ -243,10 +243,19 @@ this.version(1).stores({
 this.version(2)
   .stores({ quotes: null, habits: 'id, date, habitId' })
   .upgrade(async (tx) => { /* 12 metric columns + heightCm → null; drop seen */ })
+
+// v3 — the muscle field asked for the wrong metric
+this.version(3)
+  .upgrade(async (tx) => { /* skeletalMusclePct → musclePct, value unchanged */ })
 ```
 
-Full field-by-field documentation, the migration rationale, and the procedure for adding v3
+Full field-by-field documentation, the migration rationale, and the procedure for adding v4
 are in **[Database Schema](DATABASE_SCHEMA.md)**.
+
+One thing v3 established that is easy to miss: **backup import bypasses Dexie's upgrade
+path entirely**, since `bulkPut` writes rows straight into the tables. A renamed field
+therefore needs handling in `backup.ts` as well as in the migration, or restoring an older
+file lands the value under a key nothing reads.
 
 Three conventions worth repeating here:
 
@@ -265,7 +274,7 @@ failure mode the JSON backup exists to survive.
 
 ## 8. Testing
 
-**128 tests across 9 files**, run by Vitest in a Node environment in about a second. CI runs
+**142 tests across 10 files**, run by Vitest in a Node environment in about a second. CI runs
 them before every build; `npm run check` runs type-check, lint and tests together.
 
 | File | Tests | Covers |
@@ -274,19 +283,27 @@ them before every build; `npm run check` runs type-check, lint and tests togethe
 | `data/coach.test.ts` | 20 | All ten rules, ordering, determinism, encouragement variety |
 | `data/program.test.ts` | 19 | Phases, templates, progression, substitution chains |
 | `data/mobility.test.ts` | 14 | Content, derived durations, sequencing, equipment |
+| `data/metrics.test.ts` | 9 | Field coverage, entry bounds against real readings, BMI |
 | `storage/stats.test.ts` | 17 | Streaks, personal bests, weekly summaries, pain runs |
 | `storage/session.test.ts` | 15 | Start, tick, advance, pause, resume, finish |
 | `storage/trends.test.ts` | 15 | Direction, noise floors, asymmetry |
-| `storage/migration.test.ts` | 3 | v1 → v2 upgrade; a fresh install landing on v2 |
-| `storage/backup.test.ts` | 11 | Export shape; export → reset → import round trip |
+| `storage/migration.test.ts` | 7 | v1 → v2 and v2 → v3 upgrades; a fresh install landing on the current version |
+| `storage/backup.test.ts` | 12 | Export shape; export → reset → import round trip; older formats |
 
 The database tests run against `fake-indexeddb`, which is why the migration can be verified
 without a browser. `createTestDatabase(name)` gives each test its own isolated instance of
 the real schema class — the tests exercise the production migration code, not a copy of it.
 
-Four real bugs were caught by assertions rather than by a browser this sprint: the
-substitution chain gap, the encouragement repetition, the permanent seeding memoisation, and
-the mobility duration drift. That is the case for the suite in one sentence.
+Five real bugs were caught by assertions rather than by a browser: the substitution chain
+gap, the encouragement repetition, the permanent seeding memoisation, the mobility duration
+drift, and — added after a real reading was rejected in daily use — a second percentage
+field still capped below 100. That is the case for the suite in one sentence.
+
+`metrics.test.ts` carries two guards worth naming. One asserts `METRICS` describes every
+stored measurement column exactly once, so a renamed or added field cannot ship without an
+entry control. The other checks a set of real scale readings against each field's bounds,
+because `NumberInput` **clamps silently rather than rejecting** — a `max` set below a
+genuine value does not raise an error, it records a different number.
 
 ---
 

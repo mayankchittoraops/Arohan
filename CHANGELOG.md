@@ -1,5 +1,82 @@
 # Changelog
 
+## Version 1.0.1 Beta — Muscle Rate, not skeletal muscle
+
+First fix from real use: a Dr Trust scale reports Muscle Rate 78%, and the field
+would not take it.
+
+### Diagnosis
+
+The field was labelled "Skeletal muscle" with `max: 70`. Internally consistent,
+and wrong for the device feeding it:
+
+| Metric | What it measures | Typical range |
+| --- | --- | --- |
+| Skeletal muscle mass % | Voluntary muscle attached to bone | 33–45% |
+| **Muscle Rate** (what consumer BIA scales report) | All lean soft tissue — muscle, organs, their water; everything but fat and bone mineral | **70–85%** |
+
+So this was the third of the three possibilities: not a wrong bound on a right
+metric, but the wrong metric asked for. 78% is impossible for the former and
+unremarkable for the latter.
+
+**Severity was higher than "input rejected".** `NumberInput` clamps in `onChange`
+rather than validating, so 78 against a max of 70 produced no error and stored
+**70** — a plausible-looking wrong number, silently. Any reading logged before
+this release is worth checking against the scale.
+
+### Changed
+
+- `skeletalMusclePct` → **`musclePct`**, label **"Muscle"**, range **0–100**, with
+  a hint naming the scale's Muscle Rate reading and the range to expect.
+- `bodyFatPct` widened from 70 to **0–100**. Never hit, same latent bug, and the
+  new bounds test refused to pass while it stood.
+
+### Schema v3
+
+```ts
+this.version(3).upgrade(async (tx) => {
+  await tx.table('measurements').toCollection().modify((m) => {
+    m.musclePct ??= m.skeletalMusclePct ?? null
+    delete m.skeletalMusclePct
+  })
+})
+```
+
+The value carries across unchanged — the reading was always Muscle Rate, so only
+the name was wrong. No index changed, so the version declares no `.stores()` and
+inherits the previous schema. `??=` keeps the replay from clobbering a value
+written after the rename.
+
+Two things had to move with the column:
+
+- **`NEW_MEASUREMENT_FIELDS` still spells it `skeletalMusclePct`.** That constant
+  is v2's history, replayed verbatim for anyone still on v1; v3 renames after.
+  "Correcting" it there would leave a v1 install with neither column.
+- **`backup.ts` normalises the key on import.** `bulkPut` writes rows straight
+  into the tables, so Dexie's upgrade functions never see a restored file — a v2
+  backup would otherwise land the reading under a dead key. `migrateMeasurement()`
+  mirrors the migration; `BACKUP_VERSION` is 3; v1 and v2 files still import.
+
+This is the first case of an import path needing a migration of its own, and the
+procedure in [Database Schema](docs/DATABASE_SCHEMA.md) now says so explicitly.
+
+### Tests — 128 → 142
+
+New **`data/metrics.test.ts`** (9), carrying the two guards that matter here:
+
+- `METRICS` describes every stored measurement column exactly once, so a renamed
+  or added field cannot ship without an entry control.
+- A set of real scale readings is checked against each field's bounds. Because
+  the input clamps silently, a bound below a genuine value is invisible at
+  runtime — this is the only place it shows up. It caught `bodyFatPct`
+  immediately.
+
+Plus 3 migration cases for v2 → v3 (value preserved, null stays null, no clobber
+on replay), 1 backup case for importing a pre-rename file, and 1 more asserting a
+v1 install lands on the current version rather than an intermediate one.
+
+---
+
 ## Version 1.0 Beta — Reliability and Health Tracking
 
 The final sprint before daily use. The goal was not more features; it was making the

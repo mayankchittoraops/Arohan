@@ -1,8 +1,56 @@
 # Arohan — Release Notes
 
+## Version 1.0.1 Beta
+
+**27 July 2026** · Schema v3 · Backup format v3
+
+A fix from the first day of real use.
+
+### The Muscle field asked for the wrong metric
+
+**Reported:** a Dr Trust scale shows Muscle Rate 78%; the field would not accept it.
+
+The field was labelled "Skeletal muscle" and capped at 70. Those two things were consistent
+with each other and wrong for every scale that feeds them:
+
+- **Skeletal muscle mass %** — voluntary muscle attached to bone — runs 33–45% in adult
+  men, perhaps 55% in a lean athlete. 78% is not physiologically reachable.
+- **Muscle Rate**, what Dr Trust and most consumer BIA scales actually report, is all lean
+  soft tissue: skeletal and smooth muscle, organs and their water, everything except fat
+  and bone mineral. **70–85% is normal.**
+
+So the reading was correct and the app was asking for a different measurement. The field is
+now **Muscle**, accepting 0–100, with a hint saying it is the scale's Muscle Rate and what
+range to expect.
+
+**This was worse than a rejected input.** `NumberInput` clamps silently rather than
+refusing — entering 78 against a max of 70 showed no error and stored **70**. Any reading
+logged before this release should be checked against the scale.
+
+`bodyFatPct` was capped at 70 for the same reason and is now 0–100 as well. It had not been
+hit yet; it was the same latent bug.
+
+### Schema v3
+
+`skeletalMusclePct` is renamed to `musclePct`. The stored value carries across untouched —
+it was always a Muscle Rate reading, so only the name needed correcting. Existing installs
+migrate on first launch with no action needed.
+
+Backups at version 1 and 2 still import correctly: the rename is mirrored on the import
+path, because restoring a file bypasses the database migration entirely.
+
+### Tests
+
+142, up from 128. New `metrics.test.ts` asserts that every stored column has an entry field,
+and checks real scale readings against each field's bounds — the guard that would have
+caught this before it reached a device. New migration cases cover v2 → v3 in both
+directions of the replay, and a backup case covers importing a pre-rename file.
+
+---
+
 ## Version 1.0 Beta
 
-**27 July 2026** · Schema v2 · Backup format v2 · Feature complete
+**27 July 2026** · Schema v3 · Backup format v3 · Feature complete
 
 This is the release Arohan was built toward: reliable enough to open every day for a year
 without thinking about it. From here, changes should come from actually using it, not from
@@ -38,7 +86,7 @@ could have left the app frozen after a restore is gone.
 
 | Group | Metrics |
 | --- | --- |
-| Composition | Weight, Body fat %, Skeletal muscle %, Visceral fat |
+| Composition | Weight, Body fat %, Muscle %, Visceral fat |
 | Girths | Neck, Chest, Waist, Hips, Left/Right arm, Left/Right thigh, Left/Right calf |
 | Performance | Push-up max, Plank hold |
 

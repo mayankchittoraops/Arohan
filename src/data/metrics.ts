@@ -48,21 +48,26 @@ export const METRICS: MetricDefinition[] = [
     group: 'Composition',
     kind: 'percent',
     min: 0,
-    max: 70,
+    max: 100,
     step: 0.1,
     decimals: 1,
     lowerIsBetter: true,
   },
   {
-    field: 'skeletalMusclePct',
-    label: 'Skeletal muscle',
+    field: 'musclePct',
+    label: 'Muscle',
     group: 'Composition',
     kind: 'percent',
     min: 0,
-    max: 70,
+    max: 100,
     step: 0.1,
     decimals: 1,
     lowerIsBetter: false,
+    // Consumer scales report "Muscle Rate": every lean soft tissue — skeletal
+    // and smooth muscle, organs, their water — as a share of body weight.
+    // Everything except fat and bone mineral, so it runs far higher than the
+    // skeletal-muscle percentage this field used to ask for.
+    hint: 'Your scale’s Muscle Rate. Counts all lean tissue, not just skeletal muscle, so 70–85% is normal.',
   },
   {
     field: 'visceralFat',
