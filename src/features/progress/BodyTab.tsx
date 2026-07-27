@@ -177,7 +177,8 @@ function BmiCard({
     <Card className="mb-section flex items-center justify-between gap-4">
       <div>
         <p className="text-micro uppercase text-faint">BMI</p>
-        <p className="mt-1 text-display tabular text-ink">{roundTo(value, 1)}</p>
+        {/* toFixed rather than roundTo: 26.0 must not render as 26. */}
+        <p className="mt-1 text-display tabular text-ink">{value.toFixed(1)}</p>
       </div>
       <p className={cn('text-right text-label font-semibold', tone)}>{BMI_BAND_LABELS[band]}</p>
     </Card>
