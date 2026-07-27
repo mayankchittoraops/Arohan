@@ -98,7 +98,7 @@ const FALLBACKS: Record<string, string> = {
   'db-rdl': 'band-rdl',
   'db-lunge': 'reverse-lunge',
   'db-shoulder-press': 'pike-push-up',
-  'db-floor-press': 'push-up',
+  'db-floor-press': 'band-chest-press',
   'db-row': 'band-row',
   'db-curl': 'band-curl',
   'db-lateral-raise': 'band-reverse-fly',

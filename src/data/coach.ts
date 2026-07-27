@@ -82,52 +82,99 @@ const isTraining = (kind: WorkoutKind | 'mobility') => kind === 'strength' || ki
 /* ------------------------------------------------------------- messaging */
 
 /**
- * Encouragement is chosen from the streak band, then varied by the day number
- * so it changes over time without being random.
+ * Encouragement pools, one per streak band.
+ *
+ * Twelve lines each, because this app is opened every day: three lines would
+ * cycle back inside a week and stop reading as encouragement. Selection is by
+ * journey day, so a line never repeats on consecutive days and never repeats
+ * within twelve — and, being derived from the date rather than a random
+ * number, it stays the same all day no matter how often the app is opened.
  */
-function encouragementFor(streak: number, journeyDay: number, trainedToday: boolean): string {
-  const pools: string[][] = trainedToday
-    ? [
-        [
-          'That is today taken care of.',
-          'Logged. The rest of the day is yours.',
-          'Done is done — nicely handled.',
-        ],
-      ]
-    : streak >= 30
-      ? [
-          [
-            `${streak} days. This is simply what you do now.`,
-            'A month of showing up. That is the whole trick.',
-            'The habit is carrying you at this point.',
-          ],
-        ]
-      : streak >= 7
-        ? [
-            [
-              `${streak} days running. Momentum is on your side.`,
-              'A full week of moving. Keep it unhurried.',
-              'You have found the rhythm — protect it.',
-            ],
-          ]
-        : streak >= 1
-          ? [
-              [
-                'Back-to-back days. That is how it builds.',
-                'Two in a row beats one perfect session.',
-                'Small and repeated wins every time.',
-              ],
-            ]
-          : [
-              [
-                'Today is a good day to start again.',
-                'No catching up needed. Just today.',
-                'The streak resets. The strength does not.',
-              ],
-            ]
+const ENCOURAGEMENT = {
+  done: [
+    'That is today taken care of.',
+    'Logged. The rest of the day is yours.',
+    'Done is done — nicely handled.',
+    'Another one in the bank.',
+    'That is the hard part over.',
+    'Good work. Now let it settle.',
+    'Filed away. Tomorrow can look after itself.',
+    'Earned your evening.',
+    'One more brick in the wall.',
+    'Nothing left to do but recover.',
+    'Solid. That is how the year gets built.',
+    'Well done — genuinely.',
+  ],
+  long: [
+    'This is simply what you do now.',
+    'A month of showing up. That is the whole trick.',
+    'The habit is carrying you at this point.',
+    'You stopped needing motivation a while ago.',
+    'Consistency at this length is rare. Keep it unremarkable.',
+    'The streak is no longer the point — the strength is.',
+    'You have made this boring, which is exactly right.',
+    'Long past the stage where this could slip.',
+    'This is a practice now, not a project.',
+    'Steady as anything.',
+    'The compounding has started.',
+    'You have built something worth protecting.',
+  ],
+  strong: [
+    'Momentum is on your side.',
+    'A full week of moving. Keep it unhurried.',
+    'You have found the rhythm — protect it.',
+    'This is the stretch where it starts to feel normal.',
+    'Nicely into the groove.',
+    'A week deep. The next one is easier.',
+    'Turning up is becoming automatic.',
+    'Good run. No need to rush it.',
+    'The pattern is holding.',
+    'This is what progress actually looks like.',
+    'Keep the pace modest and it keeps going.',
+    'Quietly excellent.',
+  ],
+  building: [
+    'Back-to-back days. That is how it builds.',
+    'Two in a row beats one perfect session.',
+    'Small and repeated wins every time.',
+    'The start of something. Keep it small.',
+    'Another day on the board.',
+    'This is the part that counts.',
+    'One after another is the whole method.',
+    'Building quietly.',
+    'Momentum starts exactly like this.',
+    'Good. Now do it again tomorrow.',
+    'Short and repeated beats long and rare.',
+    'The habit is taking hold.',
+  ],
+  restart: [
+    'Today is a good day to start again.',
+    'No catching up needed. Just today.',
+    'The streak resets. The strength does not.',
+    'Beginning again is a skill, and you have it.',
+    'Nothing is owed. Only today matters.',
+    'Fresh page. Same body, same plan.',
+    'Restarting is the most normal thing in the world.',
+    'One session is all today asks for.',
+    'The plan waited. It is still here.',
+    'Back to it, no ceremony required.',
+    'This day counts as much as any other.',
+    'Start where you are.',
+  ],
+} as const
 
-  const pool = pools[0]
-  return pool[journeyDay % pool.length]
+function bandFor(streak: number, trainedToday: boolean): keyof typeof ENCOURAGEMENT {
+  if (trainedToday) return 'done'
+  if (streak >= 30) return 'long'
+  if (streak >= 7) return 'strong'
+  if (streak >= 1) return 'building'
+  return 'restart'
+}
+
+function encouragementFor(streak: number, journeyDay: number, trainedToday: boolean): string {
+  const pool = ENCOURAGEMENT[bandFor(streak, trainedToday)]
+  // Non-negative modulo, so a day before the journey start does not throw.
+  return pool[((journeyDay % pool.length) + pool.length) % pool.length]
 }
 
 /** The line shown on the celebration screen, in the same voice as the rest. */
