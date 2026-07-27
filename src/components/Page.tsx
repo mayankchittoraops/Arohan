@@ -42,6 +42,17 @@ export function PageSkeleton({ wide }: { wide?: boolean }) {
   )
 }
 
+/** Inline placeholder for a tab or card whose query has not resolved yet. */
+export function BlockSkeleton({ rows = 3 }: { rows?: number }) {
+  return (
+    <div className="animate-pulse space-y-2" aria-hidden>
+      {Array.from({ length: rows }, (_, i) => (
+        <div key={i} className="h-24 rounded-xl2 bg-sunken" />
+      ))}
+    </div>
+  )
+}
+
 export function PageHeader({
   title,
   subtitle,

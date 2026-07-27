@@ -1,5 +1,6 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { Check, Lock } from 'lucide-react'
+import { BlockSkeleton } from '@/components/Page'
 import { Card, SectionTitle } from '@/components/Card'
 import { Icon } from '@/components/Icon'
 import { ProgressBar, ProgressRing } from '@/components/ProgressRing'
@@ -32,7 +33,7 @@ export function JourneyTab({
     return new Map(records.map((r) => [r.id, r]))
   }, [])
 
-  if (!stats || !unlocked) return null
+  if (!stats || !unlocked) return <BlockSkeleton />
 
   const achievement = stats.achievement
   const yearProgress = Math.min(1, Math.max(0, journeyDay / 365))

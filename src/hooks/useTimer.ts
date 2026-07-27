@@ -82,28 +82,6 @@ export function useCountdown(onComplete?: () => void) {
   }
 }
 
-/** A count-up stopwatch, for timed holds. */
-export function useStopwatch() {
-  const [startedAt, setStartedAt] = useState<number | null>(null)
-  const [elapsed, setElapsed] = useState(0)
-
-  useEffect(() => {
-    if (startedAt == null) return
-    const tick = () => setElapsed((Date.now() - startedAt) / 1000)
-    tick()
-    const id = window.setInterval(tick, 100)
-    return () => window.clearInterval(id)
-  }, [startedAt])
-
-  const start = useCallback(() => setStartedAt(Date.now()), [])
-  const reset = useCallback(() => {
-    setStartedAt(null)
-    setElapsed(0)
-  }, [])
-
-  return { elapsed, running: startedAt != null, start, reset }
-}
-
 /** Re-renders on an interval. Used for the live session clock. */
 export function useTicker(intervalMs: number, active = true): number {
   const [now, setNow] = useState(() => Date.now())
