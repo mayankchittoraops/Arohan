@@ -82,6 +82,9 @@ movement, sets, reps, and the week number within the phase.
   planned.
 - **Instructions, cues, and easier/harder variations** are on every movement. If today's
   version is wrong for you, the variation is right there.
+- **Never done the movement before?** The written steps assume you have seen it once.
+  The [Exercise Reference](EXERCISE_REFERENCE.md) lists every movement in the app with a
+  YouTube search link, so you can watch the form ahead of time and build a playlist.
 - **Skip** removes a movement from the flow without deleting it from the record.
 - **Notes** per exercise, for anything you want to remember next week.
 - The screen stays awake while a session is running.

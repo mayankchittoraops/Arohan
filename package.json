@@ -8,6 +8,7 @@
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "preview": "vite preview",
+    "docs:exercises": "vite-node scripts/exercise-reference.mts",
     "test": "vitest run",
     "test:watch": "vitest",
     "check": "tsc -b && oxlint src && vitest run"

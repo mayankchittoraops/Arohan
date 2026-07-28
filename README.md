@@ -139,6 +139,7 @@ npm run build      # type-check then production build into dist/
 npm run preview
 npm test           # 142 tests, Vitest
 npm run check      # tsc -b && oxlint src && vitest run
+npm run docs:exercises   # regenerate docs/EXERCISE_REFERENCE.md from the content modules
 ```
 
 ## Deploying
@@ -185,6 +186,7 @@ and the programme logic testable without a browser.
 | Document | For |
 | --- | --- |
 | [User Guide](docs/USER_GUIDE.md) | How to use every screen, and the habits that make it work |
+| [Exercise Reference](docs/EXERCISE_REFERENCE.md) | Every movement, session and routine, with a YouTube search link for each |
 | [Backup Guide](docs/BACKUP_GUIDE.md) | Export, restore, and moving to a new device |
 | [Release Notes](docs/RELEASE_NOTES.md) | What shipped in v1.0 Beta |
 | [Technical Report](docs/TECHNICAL_REPORT.md) | Stack, features, storage, tests, performance |
